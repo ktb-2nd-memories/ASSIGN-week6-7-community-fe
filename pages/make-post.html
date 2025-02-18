@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>게시글 작성</title>
+    <link rel="stylesheet" href="../styles/components/header.css">
+    <link rel="stylesheet" href="../styles/make-post.css">
+    <script defer src="../scripts/components/header.js"></script>
+    <script defer src="../scripts/make-post.js"></script>
+</head>
+<body>
+    <header>
+        <div class="header-container" id="header-container"></div>
+        <hr class="full-width-divider">
+    </header>
+
+    <main class="post-container">
+        <h2 class="post-title">게시글 작성</h2>
+
+        <div class="input-group">
+            <label for="post-title">제목 *</label>
+            <input type="text" id="post-title" placeholder="제목을 입력해주세요. (최대 26글자)" maxlength="26">
+            <hr class="input-divider">
+        </div>
+
+        <div class="input-group">
+            <label for="post-content">내용 *</label>
+            <textarea id="post-content" placeholder="내용을 입력해주세요."></textarea>
+            <hr class="input-divider">
+            <div id="helper-text" class="helper-text">* 제목, 내용을 모두 작성해주세요.</div>
+        </div>
+
+        <div class="input-group">
+            <label for="post-image">이미지</label>
+            <input type="file" id="post-image">
+            <hr class="input-divider">
+        </div>
+
+        <button id="submit-btn" class="disabled" disabled>완료</button>
+    </main>
+</body>
+</html>

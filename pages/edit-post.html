@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>게시글 수정</title>
+    <link rel="stylesheet" href="../styles/components/header.css">
+    <link rel="stylesheet" href="../styles/edit-post.css">
+    <script defer src="../scripts/components/header.js"></script>
+    <script defer src="../scripts/edit-post.js"></script>
+</head>
+<body>
+    <header>
+        <div class="header-container" id="header-container"></div>
+        <hr class="full-width-divider">
+    </header>
+
+    <main class="post-container">
+        <h2 class="post-title">게시글 수정</h2>
+
+        <div class="input-group">
+            <label for="post-title">제목 *</label>
+            <input type="text" id="post-title" value="제목 1" maxlength="26">
+            <hr class="input-divider">
+        </div>
+
+        <div class="input-group">
+            <label for="post-content">내용 *</label>
+            <textarea id="post-content">기존 게시글 내용이 여기에 들어갑니다.</textarea>
+            <hr class="input-divider">
+            <div id="helper-text" class="helper-text">* 제목, 내용을 모두 작성해주세요.</div>
+        </div>
+
+        <div class="input-group">
+            <label for="post-image">이미지</label>
+            <input type="file" id="post-image">
+            <hr class="input-divider">
+        </div>
+
+        <button id="edit-btn" class="disabled" disabled>수정하기</button>
+    </main>
+</body>
+</html>

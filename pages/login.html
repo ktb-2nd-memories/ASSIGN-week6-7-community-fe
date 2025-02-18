@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>로그인</title>
+    <link rel="stylesheet" href="../styles/components/header.css">
+    <link rel="stylesheet" href="../styles/login.css">
+    <script defer src="../scripts/components/header.js"></script>
+    <script defer src="../scripts/login.js"></script>
+</head>
+<body>
+    <header>
+        <div class="header-container" id="header-container"></div>
+        <hr class="full-width-divider">
+    </header>
+
+    <div class="login-container">
+        <h2 class="hidden">로그인</h2>
+        <div class="input-group">
+            <label for="email">이메일</label>
+            <input type="email" id="email" placeholder="이메일을 입력하세요">
+        </div>
+        <div class="input-group">
+            <label for="password">비밀번호</label>
+            <input type="password" id="password" placeholder="비밀번호를 입력하세요">
+            <div class="helper-text" style="display: none;">* 비밀번호는 8자 이상, 20자 이하이며, 대문자, 소문자, 숫자, 특수문자를 각각 최소 1개 포함해야 합니다.</div>
+        </div>
+        <button id="login-button" class="login-button">로그인</button>
+        <button class="signin-button" onclick="location.href='signin.html'">회원가입</button>
+    </div>
+</body>
+</html>

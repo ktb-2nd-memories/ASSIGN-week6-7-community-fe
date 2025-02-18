@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>게시글 상세</title>
+    <link rel="stylesheet" href="../styles/components/header.css">
+    <link rel="stylesheet" href="../styles/components/modal.css">
+    <link rel="stylesheet" href="../styles/post.css">
+    <script defer src="../scripts/components/header.js"></script>
+    <script defer src="../scripts/post.js"></script>
+</head>
+<body>
+    <header>
+        <div class="header-container" id="header-container"></div>
+        <hr class="full-width-divider">
+    </header>
+
+    <main class="post-container">
+        <section class="post-content">
+            <h2 class="post-title">제목 1</h2>
+            <div class="post-meta">
+                <img src="../assets/images/default.png" alt="작성자 프로필" class="author-img">
+                <div class="post-info">
+                    <span class="author">더미 작성자 1</span>
+                    <span class="date">2021-01-01 00:00:00</span>
+                </div>
+                <div class="edit-delete">
+                    <button class="edit-btn">수정</button>
+                    <button class="delete-btn">삭제</button>
+                </div>
+            </div>            
+
+            <hr class="post-divider"> 
+            <img src="../assets/images/default.png" alt="게시글 이미지" class="post-image">
+
+            <p class="post-text">
+                무작위 텍스트 내용입니다. 게시글 상세 내용이 여기에 표시됩니다.
+            </p>
+
+            <div class="post-stats">
+                <button class="stat-btn like-btn">123<br>좋아요</button>
+                <button class="stat-btn">123<br>조회수</button>
+                <button class="stat-btn">123<br>댓글</button>
+            </div>            
+        </section>
+
+        <section class="comments-section">
+            <hr class="comment-divider">
+            <div class="comment-input-container">
+                <textarea class="comment-input" placeholder="댓글을 남겨주세요!"></textarea>
+                <hr class="comment-divider">
+                <div class="comment-submit-wrapper">
+                    <button class="comment-submit">댓글 등록</button>
+                </div>
+            </div>
+
+            <ul class="comment-list">
+                <li class="comment">
+                    <div class="comment-header">
+                        <img src="../assets/images/default.png" alt="댓글 작성자 프로필" class="comment-author-img"> <!-- 프로필 이미지 추가 -->
+                        <div class="comment-info">
+                            <span class="comment-author">더미 작성자 1</span>
+                            <span class="comment-date">2021-01-01 00:00:00</span>
+                        </div>
+                        <div class="comment-actions">
+                            <button class="edit-comment">수정</button>
+                            <button class="delete-comment">삭제</button>
+                        </div>
+                    </div>
+                    <p class="comment-text">댓글 내용</p>
+                </li>
+            </ul>                   
+        </section>
+
+        <div id="delete-post-modal" class="modal">
+            <div class="modal-content">
+                <p class="modal-title">게시글을 삭제하시겠습니까?</p>
+                <p class="modal-text">삭제한 내용은 복구할 수 없습니다.</p>
+                <div class="modal-actions">
+                    <button id="cancel-delete-post-btn">취소</button>
+                    <button id="confirm-delete-post-btn">확인</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="delete-comment-modal" class="modal">
+            <div class="modal-content">
+                <p class="modal-title">댓글을 삭제하시겠습니까?</p>
+                <p class="modal-text">삭제한 내용은 복구할 수 없습니다.</p>
+                <div class="modal-actions">
+                    <button id="cancel-delete-comment-btn">취소</button>
+                    <button id="confirm-delete-comment-btn">확인</button>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

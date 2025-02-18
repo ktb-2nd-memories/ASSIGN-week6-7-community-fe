@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>회원정보 수정</title>
+    <link rel="stylesheet" href="../styles/components/header.css">
+    <link rel="stylesheet" href="../styles/components/modal.css">
+    <link rel="stylesheet" href="../styles/edit-profile.css">
+    <script defer src="../scripts/components/header.js"></script>
+    <script defer src="../scripts/edit-profile.js"></script>
+</head>
+<body>
+    <header>
+        <div class="header-container" id="header-container"></div>
+        <hr class="full-width-divider">
+    </header>
+
+    <main class="profile-container">
+        <h2 class="profile-title">회원정보 수정</h2>
+
+        <div class="profile-container">
+            <label class="profile-label">프로필 사진</label>
+            <div class="profile-picture">
+                <img id="profile-img" src="../assets/images/profile-icon.png">
+                <div class="profile-overlay">
+                    <button id="change-picture">변경</button>
+                </div>
+                <input type="file" id="profile-upload" accept="image/*">
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label for="email">이메일</label>
+            <p id="email">startupcode@gmail.com</p>
+        </div>
+
+        <div class="input-group">
+            <label for="nickname">닉네임 *</label>
+            <input type="text" id="nickname" value="스타트업코드" maxlength="10">
+            <div id="helper-text" class="helper-text"></div>
+        </div>
+
+        <button id="update-btn" class="disabled" disabled>수정하기</button>
+        <button id="withdraw-btn">회원 탈퇴</button>
+
+        <div id="toast" class="toast">수정 완료</div>
+    </main>
+
+    <div id="withdraw-modal" class="modal">
+        <div class="modal-content">
+            <p class="modal-title">회원탈퇴 하시겠습니까?</p>
+            <p class="modal-text">작성된 게시글과 댓글은 삭제됩니다.</p>
+            <div class="modal-actions">
+                <button id="cancel-btn">취소</button>
+                <button id="confirm-withdraw-btn">확인</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

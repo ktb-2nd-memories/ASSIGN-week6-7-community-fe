@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>회원가입</title>
+    <link rel="stylesheet" href="../styles/components/header.css">
+    <link rel="stylesheet" href="../styles/signin.css">
+    <script defer src="../scripts/components/header.js"></script>
+    <script defer src="../scripts/signin.js"></script>
+</head>
+<body>
+    <header>
+        <div class="header-container" id="header-container"></div>
+        <hr class="full-width-divider">
+    </header>
+
+    <div class="signin-container">
+        <h2>회원가입</h2>
+        
+        <div class="profile-container">
+            <label class="profile-label">프로필 사진</label>
+            <div class="helper-text profile-helper">* 프로필 사진을 추가해주세요.</div> 
+            <div class="profile-picture" id="profile-container">
+                <img id="profile-img" src="" alt="프로필 이미지" class="hidden">
+                <div class="profile-placeholder">+</div>
+                <input type="file" id="profile-upload" accept="image/*">
+            </div>
+        </div>        
+
+        <div class="input-group">
+            <label for="email">이메일*</label>
+            <input type="email" id="email" placeholder="이메일을 입력하세요">
+            <div class="helper-text">* 올바른 이메일 주소 형식을 입력해주세요. (예: example@example.com)</div>
+        </div>
+
+        <div class="input-group">
+            <label for="password">비밀번호*</label>
+            <input type="password" id="password" placeholder="비밀번호를 입력하세요">
+            <div class="helper-text">* 비밀번호는 8자 이상, 20자 이하이며, 대문자, 소문자, 숫자, 특수문자를 포함해야 합니다.</div>
+        </div>
+
+        <div class="input-group">
+            <label for="password-confirm">비밀번호 확인*</label>
+            <input type="password" id="password-confirm" placeholder="비밀번호를 한 번 더 입력하세요">
+            <div class="helper-text">* 비밀번호가 다릅니다.</div>
+        </div>
+
+        <div class="input-group">
+            <label for="nickname">닉네임*</label>
+            <input type="text" id="nickname" placeholder="닉네임을 입력하세요">
+            <div class="helper-text">* 닉네임은 10자 이내여야 하며, 특수문자는 사용할 수 없습니다.</div>
+        </div>
+
+        <button class="signin-button" disabled>회원가입</button>
+        <button class="login-link" onclick="location.href='login.html'">로그인하러 가기</button>
+    </div>
+</body>
+</html>
