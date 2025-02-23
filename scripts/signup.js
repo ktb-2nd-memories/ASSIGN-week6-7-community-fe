@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const confirmPasswordHelper = confirmPasswordInput.nextElementSibling;
     const nicknameInput = document.getElementById("nickname");
     const nicknameHelper = nicknameInput.nextElementSibling;
-    const signupButton = document.querySelector(".signin-button");
+    const signupButton = document.querySelector(".signup-button");
     const profileUpload = document.getElementById("profile-upload");
     const profileImg = document.getElementById("profile-img");
     const profilePlaceholder = document.querySelector(".profile-placeholder");
