@@ -7,7 +7,7 @@ body {
     margin: 0;
 }
 
-.signin-container {
+.signup-container {
     background-color: transparent;
     padding: 20px;
     border-radius: 8px;
@@ -101,7 +101,7 @@ input[type="file"] {
     text-align: left;
 }
 
-.signin-button {
+.signup-button {
     width: 100%;
     padding: 10px;
     background-color: #ACA0EB;
@@ -111,16 +111,16 @@ input[type="file"] {
     cursor: pointer;
 }
 
-.signin-button:disabled {
+.signup-button:disabled {
     background-color: #ccc;
     cursor: not-allowed;
 }
 
-.signin-button.active {
+.signup-button.active {
     background-color: #7F6AEE;
 }
 
-.signin-button:hover:enabled {
+.signup-button:hover:enabled {
     background-color: #7F6AEE;
 }
 

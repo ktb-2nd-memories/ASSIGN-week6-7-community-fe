@@ -3,7 +3,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const currentPage = window.location.pathname.split("/").pop();
 
     const pageSettings = {
-        "signin.html": { showBackBtn: true, backLink: "login.html", showProfile: false },
+        "signup.html": { showBackBtn: true, backLink: "login.html", showProfile: false },
         "post.html": { showBackBtn: true, backLink: "posts.html", showProfile: true },
         "make-post.html": { showBackBtn: true, backLink: "posts.html", showProfile: true },
         "edit-post.html": { showBackBtn: true, backLink: "posts.html", showProfile: true },
