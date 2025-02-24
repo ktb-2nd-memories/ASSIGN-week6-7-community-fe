@@ -1,0 +1,27 @@
+{
+    "message": "posts_fetched",
+    "data": [
+        {
+            "postId": 1,
+            "title": "첫 번째 게시글",
+            "content": "이것은 테스트 게시글입니다.",
+            "author": "테스트 작성자",
+            "image": "https://via.placeholder.com/150",
+            "likes": 1234,
+            "comments": 15,
+            "views": 5678,
+            "date": "2025-02-24 14:30:00"
+        },
+        {
+            "postId": 2,
+            "title": "두 번째 게시글",
+            "content": "또 다른 테스트 게시글입니다.",
+            "author": "테스트 작성자2",
+            "image": "https://via.placeholder.com/150",
+            "likes": 567,
+            "comments": 8,
+            "views": 3210,
+            "date": "2025-02-24 15:00:00"
+        }
+    ]
+}

@@ -60,15 +60,40 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
-    // 로그인 버튼 클릭 이벤트
-    loginButton.addEventListener("click", function () {
-        if (!loginButton.disabled) {
-            alert("로그인 요청을 보냈습니다.");
-        } else {
-            alert("이메일 또는 비밀번호를 확인해주세요.");
-        }
-    });
-
     // 초기 버튼 상태 설정
     validateForm();
+
+    loginButton.addEventListener("click", async function () {
+        if (loginButton.disabled) return; // 버튼이 비활성화된 경우 실행 안 함
+
+        const email = emailInput.value.trim();
+        const password = passwordInput.value.trim();
+
+        const requestData = { email, password };
+
+        try {
+            // 실제 서버가 없으므로 임의의 서버 주소 사용
+            const response = await fetch("https://jsonplaceholder.typicode.com/users/login", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(requestData)
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                alert("로그인 성공! 게시글 목록 페이지로 이동합니다.");
+                window.location.href = "posts.html"; // 게시글 목록 페이지로 이동
+            } else if (response.status === 401) {
+                alert("아이디 또는 비밀번호를 확인해주세요.");
+            } else {
+                alert("서버 오류가 발생했습니다. 다시 시도해주세요.");
+            }
+        } catch (error) {
+            console.error("로그인 요청 중 오류 발생:", error);
+            alert("네트워크 오류가 발생했습니다. 다시 시도해주세요.");
+        }
+    });
 });

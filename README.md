@@ -1,4 +1,7 @@
 # 커뮤니티 웹 애플리케이션
+
+3주차 과제에 event 처리, fetch 적용한 코드입니다.
+
 **주제** 순수 Vanilla JS로 만든 아무 말 대잔치 커뮤니티<br>
 **Skills** HTML5, CSS3, Vailla JS
 
@@ -33,6 +36,7 @@ COMMUNITY-FE/
 │   └── images/
 │
 ├── pages/  # 개별 페이지 HTML 파일
+│   └── data/ # 로컬 json 파일
 │
 ├── scripts/  # JavaScript 파일
 │   └── components/
