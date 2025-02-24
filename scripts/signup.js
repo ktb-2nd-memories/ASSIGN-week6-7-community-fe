@@ -185,4 +185,49 @@ document.addEventListener("DOMContentLoaded", function () {
     validatePassword();
     validateConfirmPassword();
     validateNickname();
+
+    signupButton.addEventListener("click", async function () {
+        if (signupButton.disabled) return; // 버튼이 활성화된 경우만 실행
+
+        const email = document.getElementById("email").value.trim();
+        const password = document.getElementById("password").value.trim();
+        const nickname = document.getElementById("nickname").value.trim();
+        const profileFile = document.getElementById("profile-upload").files[0];
+
+        let profileImageUrl = "";
+        if (profileFile) {
+            // 실제 서버 업로드가 없으므로, 임시 URL 처리
+            profileImageUrl = URL.createObjectURL(profileFile);
+        }
+
+        const requestData = {
+            email,
+            password,
+            nickname,
+            profileImage: profileImageUrl || "" // 프로필 이미지가 없으면 빈 문자열
+        };
+
+        try {
+            // 실제 서버가 없으므로, 임의의 서버 주소로 요청
+            const response = await fetch("https://jsonplaceholder.typicode.com/users/signup", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(requestData)
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                alert("회원가입 성공! 로그인 페이지로 이동합니다.");
+                window.location.href = "login.html"; // 성공 시 로그인 페이지 이동
+            } else {
+                alert("입력값을 확인해주세요. (잘못된 요청)");
+            }
+        } catch (error) {
+            console.error("회원가입 요청 중 오류 발생:", error);
+            alert("네트워크 오류가 발생했습니다. 다시 시도해주세요.");
+        }
+    });
 });

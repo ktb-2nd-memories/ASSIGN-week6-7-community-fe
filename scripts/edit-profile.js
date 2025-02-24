@@ -13,13 +13,12 @@ document.addEventListener("DOMContentLoaded", function () {
     const dropdownMenu = document.getElementById("dropdown-menu");
     const profileIcon = document.getElementById("profile-icon");
 
-    // 수정 완료 토스트 메시지를 처음에는 숨김 상태로 설정
     toast.style.display = "none";
-
-    // 회원 탈퇴 모달 초기 상태: 숨김
     withdrawModal.style.display = "none";
 
-    // 닉네임 검증 함수
+    let usedNicknames = ["admin", "superuser", "testuser"]; // 예제용 중복 닉네임
+
+    // 닉네임 검증
     function validateNickname() {
         const value = nicknameInput.value.trim();
 
@@ -43,12 +42,11 @@ document.addEventListener("DOMContentLoaded", function () {
     // 닉네임 입력 시 유효성 검사
     nicknameInput.addEventListener("input", validateNickname);
 
-    // 변경 버튼 클릭 시 파일 업로드 창 열기
+    // 프로필 사진 변경
     changePicture.addEventListener("click", function () {
         profileUpload.click();
     });
 
-    // 파일 선택 시 업로드된 이미지 즉시 반영
     profileUpload.addEventListener("change", function () {
         if (profileUpload.files && profileUpload.files[0]) {
             const reader = new FileReader();
@@ -59,46 +57,69 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-    // 수정하기 버튼 클릭 시 닉네임 검증 후 처리
-    updateBtn.addEventListener("click", function () {
-        if (!updateBtn.disabled) {
-            // 수정 완료 메시지를 표시
-            toast.style.display = "block";
+    // 회원정보 수정 API - PUT
+    updateBtn.addEventListener("click", async function () {
+        if (updateBtn.disabled) return;
+        
+        const newNickname = nicknameInput.value.trim();
+        const profileImageUrl = profileImg.src;
+        
+        const requestData = {
+            nickname: newNickname,
+            profileImage: profileImageUrl
+        };
 
-            // 입력한 닉네임 값으로 업데이트
-            const newNickname = nicknameInput.value.trim();
-            nicknameInput.value = newNickname;
+        try {
+            const response = await fetch("https://jsonplaceholder.typicode.com/users/profile", {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(requestData)
+            });
 
-            setTimeout(() => {
-                toast.style.display = "none";
-            }, 2000);
+            if (response.ok) {
+                toast.style.display = "block";
+                setTimeout(() => { toast.style.display = "none"; }, 2000);
+            } else {
+                alert("회원정보 수정 실패. 다시 시도해주세요.");
+            }
+        } catch (error) {
+            console.error("회원정보 수정 중 오류 발생:", error);
         }
     });
 
-    // 회원 탈퇴 버튼 클릭 시 확인 모달 열기
+    // 회원 탈퇴 API - DELETE
     withdrawBtn.addEventListener("click", function () {
         withdrawModal.style.display = "block";
     });
 
-    // 취소 버튼 클릭 시 모달 닫기
     cancelBtn.addEventListener("click", function () {
         withdrawModal.style.display = "none";
     });
 
-    // 확인 버튼 클릭 시 탈퇴 로직 실행 (현재는 로그 출력)
-    confirmWithdrawBtn.addEventListener("click", function () {
-        console.log("회원 탈퇴 완료");
-        alert("회원 탈퇴가 완료되었습니다.");
-        window.location.href = "login.html"; // 탈퇴 후 로그인 페이지로 이동
+    confirmWithdrawBtn.addEventListener("click", async function () {
+        try {
+            const response = await fetch("https://jsonplaceholder.typicode.com/users", {
+                method: "DELETE"
+            });
+
+            if (response.ok) {
+                alert("회원 탈퇴가 완료되었습니다.");
+                window.location.href = "login.html"; // 탈퇴 후 로그인 페이지로 이동
+            } else {
+                alert("회원 탈퇴 실패. 다시 시도해주세요.");
+            }
+        } catch (error) {
+            console.error("회원 탈퇴 중 오류 발생:", error);
+            alert("네트워크 오류가 발생했습니다.");
+        }
     });
 
-    // 프로필 아이콘 클릭 시 드롭다운 메뉴 토글
+    // 드롭다운 메뉴
     profileIcon.addEventListener("click", function (event) {
         event.stopPropagation();
         dropdownMenu.style.display = dropdownMenu.style.display === "block" ? "none" : "block";
     });
 
-    // 다른 곳 클릭 시 드롭다운 메뉴 닫기
     document.addEventListener("click", function (event) {
         if (!profileIcon.contains(event.target) && !dropdownMenu.contains(event.target)) {
             dropdownMenu.style.display = "none";

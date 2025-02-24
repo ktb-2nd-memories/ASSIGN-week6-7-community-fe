@@ -72,4 +72,33 @@ document.addEventListener("DOMContentLoaded", function () {
             }, 2000);
         }
     });
+
+    updateBtn.addEventListener("click", async function () {
+        if (updateBtn.disabled) return;
+
+        const requestData = {
+            password: passwordInput.value.trim(),
+            confirmPassword: confirmPasswordInput.value.trim()
+        };
+
+        try {
+            const response = await fetch("https://jsonplaceholder.typicode.com/users/password", {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(requestData)
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                toast.style.display = "block";
+                setTimeout(() => { toast.style.display = "none"; }, 2000);
+            } else {
+                alert("비밀번호 변경 실패. 다시 시도해주세요.");
+            }
+        } catch (error) {
+            console.error("비밀번호 변경 중 오류 발생:", error);
+            alert("네트워크 오류가 발생했습니다. 다시 시도해주세요.");
+        }
+    });
 });

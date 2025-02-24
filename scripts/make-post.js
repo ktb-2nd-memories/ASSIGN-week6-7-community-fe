@@ -1,11 +1,12 @@
 document.addEventListener("DOMContentLoaded", function () {
     const titleInput = document.getElementById("post-title");
     const contentInput = document.getElementById("post-content");
+    const imageInput = document.getElementById("post-image");
     const submitBtn = document.getElementById("submit-btn");
     const helperText = document.getElementById("helper-text");
 
     function validateForm() {
-        const isTitleValid = titleInput.value.trim().length > 0;
+        const isTitleValid = titleInput.value.trim().length > 0 && titleInput.value.trim().length <= 26;
         const isContentValid = contentInput.value.trim().length > 0;
 
         if (isTitleValid && isContentValid) {
@@ -23,41 +24,55 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    validateForm();
-
     titleInput.addEventListener("input", validateForm);
     contentInput.addEventListener("input", validateForm);
 
-    submitBtn.addEventListener("click", function () {
+    function convertImageToBase64(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = error => reject(error);
+        });
+    }
+
+    async function submitPost() {
         if (submitBtn.disabled) {
             helperText.style.display = "block"; 
-        } else {
-            // **기존 게시글 가져오기 (localStorage 사용)**
-            let posts = JSON.parse(localStorage.getItem("posts")) || [];
-
-            // **새로운 id 설정 (기존 게시글 중 가장 큰 id + 1)**
-            let newId = posts.length > 0 ? Math.max(...posts.map(post => post.id)) + 1 : 1;
-
-            // **새로운 게시글 객체 생성**
-            const newPost = {
-                id: newId,
-                title: titleInput.value.trim(),
-                content: contentInput.value.trim(),
-                likes: 0,
-                comments: 0,
-                views: 0,
-                date: new Date().toISOString().split("T")[0] + " " + new Date().toLocaleTimeString(), 
-                author: "작성자",
-            };
-
-            // **새로운 게시글 추가 및 저장**
-            posts.push(newPost);
-            localStorage.setItem("posts", JSON.stringify(posts));
-
-            alert("게시글이 등록되었습니다.");
-
-            // **posts.html로 이동 후 강제 새로고침하여 반영**
-            window.location.href = "posts.html";
+            return;
         }
-    });
+
+        let imageUrl = "";
+        if (imageInput.files.length > 0) {
+            try {
+                imageUrl = await convertImageToBase64(imageInput.files[0]);
+            } catch (error) {
+                console.error("이미지 변환 실패:", error);
+            }
+        }
+
+        const postData = {
+            title: titleInput.value.trim(),
+            content: contentInput.value.trim(),
+            author: "작성자",  // 서버에서 사용자 인증이 있다면 변경 필요
+            image: imageUrl || null,
+        };
+
+        fetch("data/make-post.json")
+        .then(response => response.json())
+        .then(data => {
+            if (data.message === "post_created") {
+                alert("게시글이 성공적으로 등록되었습니다.");
+                window.location.href = "posts.html";
+            } else {
+                alert("입력값이 올바르지 않습니다. 제목과 내용을 확인해주세요.");
+            }
+        })
+        .catch(error => {
+            console.error("게시글 등록 실패:", error);
+            alert("게시글 등록 중 오류가 발생했습니다. 다시 시도해주세요.");
+        });
+    }
+
+    submitBtn.addEventListener("click", submitPost);
 });

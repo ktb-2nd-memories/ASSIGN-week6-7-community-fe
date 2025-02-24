@@ -1,0 +1,6 @@
+{
+    "message": "like_added",
+    "data": {
+        "likes": 101
+    }
+}

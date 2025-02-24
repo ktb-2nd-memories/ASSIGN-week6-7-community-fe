@@ -6,7 +6,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // 게시글 작성 페이지 이동
     createPostButton.addEventListener("click", function () {
-        window.location.href = "create-post.html";
+        window.location.href = "make-post.html";
     });
 
     // localStorage에서 기존 게시글 가져오기 (없으면 빈 배열)

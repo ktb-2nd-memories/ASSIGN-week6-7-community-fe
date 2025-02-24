@@ -1,0 +1,27 @@
+{
+    "message": "post_found",
+    "data": {
+        "postId": 1,
+        "title": "새로운 게시글 2",
+        "content": "무엇을 얘기할까요? 아무말이라면...",
+        "author": "작성자 2",
+        "image": "https://via.placeholder.com/600",
+        "date": "2025-02-24 14:30:00",
+        "likes": 7500,
+        "views": 369,
+        "comments": [
+            {
+                "commentId": 1,
+                "content": "좋은 글이네요!",
+                "author": "사용자1",
+                "date": "2025-02-24 15:00:00"
+            },
+            {
+                "commentId": 2,
+                "content": "재밌게 읽었습니다.",
+                "author": "사용자2",
+                "date": "2025-02-24 15:05:30"
+            }
+        ]
+    }
+}

@@ -1,0 +1,9 @@
+{
+    "message": "post_edit",
+    "data": {
+        "postId": 1,
+        "title": "수정된 게시글 2",
+        "content": "수정된 내용입니다.",
+        "image": "https://via.placeholder.com/600"
+    }
+}
