@@ -1,3 +1,5 @@
+import { validatePassword, validateConfirmPassword } from "../scripts/components/validator.js";
+
 document.addEventListener("DOMContentLoaded", function () {
     const passwordInput = document.getElementById("password");
     const confirmPasswordInput = document.getElementById("confirm-password");
@@ -7,71 +9,50 @@ document.addEventListener("DOMContentLoaded", function () {
     const passwordHelper = document.getElementById("password-helper");
     const confirmPasswordHelper = document.getElementById("confirm-password-helper");
 
-    const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,20}$/;
-
-    let isPasswordValid = false; 
-    let isConfirmPasswordValid = false;
-
-    function validatePassword() {
-        const password = passwordInput.value.trim();
-        if (!passwordPattern.test(password)) {
-            passwordHelper.style.display = "block";
-            isPasswordValid = false;
-        } else {
-            passwordHelper.style.display = "none";
-            isPasswordValid = true;
-        }
-        validateForm();
-    }
-
-    function validateConfirmPassword() {
-        const password = passwordInput.value.trim();
-        const confirmPassword = confirmPasswordInput.value.trim();
-
-        if (!isPasswordValid) {
-            confirmPasswordHelper.style.display = "none"; 
-            isConfirmPasswordValid = false;
-            return;
-        }
-
-        if (confirmPassword === "") {
-            confirmPasswordHelper.textContent = "* 비밀번호를 한 번 더 입력해주세요.";
-            confirmPasswordHelper.style.display = "block";
-            isConfirmPasswordValid = false;
-        } else if (password !== confirmPassword) {
-            confirmPasswordHelper.textContent = "* 비밀번호 확인이 비밀번호와 다릅니다.";
-            confirmPasswordHelper.style.display = "block";
-            isConfirmPasswordValid = false;
-        } else {
-            confirmPasswordHelper.style.display = "none";
-            isConfirmPasswordValid = true;
-        }
-        validateForm();
-    }
-
     function validateForm() {
-        if (isPasswordValid && isConfirmPasswordValid) {
-            updateBtn.disabled = false;
-            updateBtn.classList.add("enabled");
-        } else {
-            updateBtn.disabled = true;
-            updateBtn.classList.remove("enabled");
-        }
+        const isPasswordValid = validatePassword(passwordInput.value.trim(), passwordHelper);
+        const isConfirmPasswordValid = validateConfirmPassword(passwordInput.value.trim(), confirmPasswordInput.value.trim(), confirmPasswordHelper);
+
+        // 버튼 활성화 여부 설정
+        const isFormValid = isPasswordValid && isConfirmPasswordValid;
+        updateBtn.disabled = !isFormValid;
+        updateBtn.classList.toggle("enabled", isFormValid);
     }
 
-    passwordInput.addEventListener("input", validatePassword);
-    confirmPasswordInput.addEventListener("focus", validateConfirmPassword);
-    confirmPasswordInput.addEventListener("input", validateConfirmPassword);
+    // 초기에는 헬퍼 텍스트 숨김
+    passwordHelper.style.display = "none";
+    confirmPasswordHelper.style.display = "none";
 
-    updateBtn.addEventListener("click", function () {
-        if (!updateBtn.disabled) {
-            toast.style.display = "block"; 
+    // 클릭 시 헬퍼 텍스트 표시 (한 번만)
+    [passwordInput, confirmPasswordInput].forEach(input => {
+        input.addEventListener("focus", function () {
+            const helperText = input === passwordInput ? passwordHelper : confirmPasswordHelper;
+            if (!input.dataset.clicked) {
+                helperText.style.display = "block";
+                input.dataset.clicked = "true";
+            }
+        });
 
-            setTimeout(() => {
-                toast.style.display = "none"; 
-            }, 2000);
-        }
+        input.addEventListener("input", function () {
+            validateForm();
+        });
+
+        input.addEventListener("blur", function () {
+            const helperText = input === passwordInput ? passwordHelper : confirmPasswordHelper;
+            const isValid = input === passwordInput
+                ? validatePassword(passwordInput.value.trim(), passwordHelper)
+                : validateConfirmPassword(passwordInput.value.trim(), confirmPasswordInput.value.trim(), confirmPasswordHelper);
+
+            // 유효하면 숨기고, 유효하지 않으면 유지
+            helperText.style.display = isValid ? "none" : "block";
+        });
     });
+
+    // 초기 렌더링 후 강제적으로 헬퍼 텍스트 숨기기
+    setTimeout(() => {
+        passwordHelper.style.display = "none";
+        confirmPasswordHelper.style.display = "none";
+    }, 0);
 
     updateBtn.addEventListener("click", async function () {
         if (updateBtn.disabled) return;
@@ -87,8 +68,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(requestData)
             });
-
-            const result = await response.json();
 
             if (response.ok) {
                 toast.style.display = "block";

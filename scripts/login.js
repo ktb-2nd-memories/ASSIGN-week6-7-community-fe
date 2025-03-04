@@ -1,3 +1,5 @@
+import { validateEmail, validatePassword } from "../scripts/components/validator.js";
+
 document.addEventListener("DOMContentLoaded", function () {
     const emailInput = document.getElementById("email");
     const passwordInput = document.getElementById("password");
@@ -10,21 +12,25 @@ document.addEventListener("DOMContentLoaded", function () {
     emailHelperText.textContent = "* 올바른 이메일 주소 형식을 입력해주세요. (예: example@example.com)";
     emailInput.parentNode.appendChild(emailHelperText);
 
-    const passwordHelperText = passwordInput.nextElementSibling;
+    const passwordHelperText = document.createElement("div");
+    passwordHelperText.classList.add("helper-text");
+    passwordHelperText.style.display = "none";
+    passwordHelperText.textContent = "* 비밀번호는 8자 이상, 20자 이하이며, 대문자, 소문자, 숫자, 특수문자를 포함해야 합니다.";
+    passwordInput.parentNode.appendChild(passwordHelperText);
 
-    // 이메일 및 비밀번호 정규식 패턴
-    const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,20}$/;
+    // 초기에는 helper text가 보이지 않게 설정
+    emailHelperText.style.display = "none";
+    passwordHelperText.style.display = "none";
 
     function validateInput(input) {
         let isValid = false;
         let helperText;
 
         if (input === emailInput) {
-            isValid = emailPattern.test(input.value);
+            isValid = validateEmail(emailInput.value.trim(), emailHelperText);
             helperText = emailHelperText;
         } else if (input === passwordInput) {
-            isValid = passwordPattern.test(input.value);
+            isValid = validatePassword(passwordInput.value.trim(), passwordHelperText);
             helperText = passwordHelperText;
         }
 
@@ -34,8 +40,8 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function validateForm() {
-        const isEmailValid = emailPattern.test(emailInput.value);
-        const isPasswordValid = passwordPattern.test(passwordInput.value);
+        const isEmailValid = validateEmail(emailInput.value.trim(), emailHelperText);
+        const isPasswordValid = validatePassword(passwordInput.value.trim(), passwordHelperText);
 
         // 로그인 버튼 활성화 여부 결정
         const isFormValid = isEmailValid && isPasswordValid;
@@ -43,28 +49,37 @@ document.addEventListener("DOMContentLoaded", function () {
         loginButton.classList.toggle("active", isFormValid);
     }
 
-    // 각 input 요소에 대한 이벤트 리스너 추가 (focus 시 helper text 표시, blur 시 유효성 검사)
+    // 각 input 요소에 대한 이벤트 리스너 추가 (click 시 helper text 표시, input 시 유효성 검사, blur 시 유효성 검사)
     [emailInput, passwordInput].forEach(input => {
-        input.addEventListener("focus", function () {
+        input.addEventListener("click", function () {
             const helperText = input === emailInput ? emailHelperText : passwordHelperText;
-            helperText.style.display = "block"; // 해당 input의 helper text만 표시
+            if (!input.dataset.clicked) {
+                helperText.style.display = "block";
+                input.dataset.clicked = "true";
+            }
         });
 
         input.addEventListener("input", function () {
-            validateInput(this); // 실시간 유효성 검사
+            validateInput(this);
             validateForm();
         });
 
         input.addEventListener("blur", function () {
-            validateInput(this); // 포커스 해제 시 유효성 검사
+            validateInput(this);
         });
     });
 
+    // 초기 상태에서 helper text가 보이지 않도록 강제 숨김 (중복 처리)
+    setTimeout(() => {
+        emailHelperText.style.display = "none";
+        passwordHelperText.style.display = "none";
+    }, 0);
+    
     // 초기 버튼 상태 설정
     validateForm();
 
     loginButton.addEventListener("click", async function () {
-        if (loginButton.disabled) return; // 버튼이 비활성화된 경우 실행 안 함
+        if (loginButton.disabled) return;
 
         const email = emailInput.value.trim();
         const password = passwordInput.value.trim();
@@ -72,7 +87,6 @@ document.addEventListener("DOMContentLoaded", function () {
         const requestData = { email, password };
 
         try {
-            // 실제 서버가 없으므로 임의의 서버 주소 사용
             const response = await fetch("https://jsonplaceholder.typicode.com/users/login", {
                 method: "POST",
                 headers: {
@@ -85,7 +99,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
             if (response.ok) {
                 alert("로그인 성공! 게시글 목록 페이지로 이동합니다.");
-                window.location.href = "posts.html"; // 게시글 목록 페이지로 이동
+                window.location.href = "posts.html";
             } else if (response.status === 401) {
                 alert("아이디 또는 비밀번호를 확인해주세요.");
             } else {
