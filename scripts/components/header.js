@@ -41,7 +41,7 @@ document.addEventListener("DOMContentLoaded", function () {
             <div class="dropdown-menu" id="dropdown-menu" style="display: none;">
                 <a href="edit-profile.html">회원정보 수정</a>
                 <a href="edit-password.html">비밀번호 수정</a>
-                <a href="logout.html">로그아웃</a>
+                <a href="login.html">로그아웃</a>
             </div>
         `;
         rightSection.appendChild(profileMenu);

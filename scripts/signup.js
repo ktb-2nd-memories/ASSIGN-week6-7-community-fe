@@ -1,131 +1,149 @@
-import { validateEmail, validatePassword, validateConfirmPassword, validateNickname } from "./components/validator.js";
-
 document.addEventListener("DOMContentLoaded", function () {
     const emailInput = document.getElementById("email");
-    const emailHelper = emailInput.nextElementSibling;
     const passwordInput = document.getElementById("password");
-    const passwordHelper = passwordInput.nextElementSibling;
     const confirmPasswordInput = document.getElementById("password-confirm");
-    const confirmPasswordHelper = confirmPasswordInput.nextElementSibling;
     const nicknameInput = document.getElementById("nickname");
-    const nicknameHelper = nicknameInput.nextElementSibling;
-    const signupButton = document.querySelector(".signup-button");
     const profileUpload = document.getElementById("profile-upload");
     const profileImg = document.getElementById("profile-img");
     const profilePlaceholder = document.querySelector(".profile-placeholder");
+    const signupButton = document.querySelector(".signup-button");
+
+    let profileFile = null; // 프로필 이미지 파일 저장 변수
+
     const profileContainer = document.getElementById("profile-container");
-    const profileHelper = document.querySelector(".profile-helper");
 
-    profileHelper.style.display = "block";
-
-    // 초기 화면에서 프로필 사진이 없으면 헬퍼 텍스트 표시
-    function validateProfile() {
-        // 실제 src 값이 존재하는지 확인
-        const imgSrc = profileImg.getAttribute("src"); 
-        const isProfileUploaded = imgSrc && imgSrc !== "" && imgSrc !== "about:blank"; 
-
-        profileHelper.style.display = isProfileUploaded ? "none" : "block";
-        return isProfileUploaded;
-    }
-
-    const usedEmails = ["test@example.com", "user@domain.com"];
-    const usedNicknames = ["admin", "superuser"];
-
-    profileContainer.addEventListener("click", function () {
-        profileUpload.click();
+    // 📌 프로필 영역 클릭 시 파일 업로드 창 열기
+    profileContainer.addEventListener("click", () => {
+        profileUpload.click(); // 파일 업로드 input 실행
     });
 
-    profileUpload.addEventListener("change", function () {
-        if (profileUpload.files && profileUpload.files[0]) {
+    // 📌 파일 업로드 이벤트 처리
+    profileUpload.addEventListener("change", function (event) {
+        const file = event.target.files[0];
+
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                profileImg.src = e.target.result; // 업로드한 이미지 미리보기
+                profileImg.classList.remove("hidden");
+                profilePlaceholder.style.display = "none"; // + 아이콘 숨김
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // 📌 입력값 유효성 검사를 위한 정규식
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,20}$/;
+    const nicknameRegex = /^[a-zA-Z0-9가-힣]{1,10}$/; // 한글, 영문, 숫자 허용, 1~10자
+
+    // 📌 입력값 검증 함수
+    function validateInput() {
+        const emailValid = emailRegex.test(emailInput.value);
+        const passwordValid = passwordRegex.test(passwordInput.value);
+        const confirmPasswordValid = passwordInput.value === confirmPasswordInput.value;
+        const nicknameValid = nicknameRegex.test(nicknameInput.value);
+        const profileValid = profileFile !== null;
+
+        // 헬퍼 텍스트 표시
+        emailInput.nextElementSibling.style.display = emailValid ? "none" : "block";
+        passwordInput.nextElementSibling.style.display = passwordValid ? "none" : "block";
+        confirmPasswordInput.nextElementSibling.style.display = confirmPasswordValid ? "none" : "block";
+        nicknameInput.nextElementSibling.style.display = nicknameValid ? "none" : "block";
+        document.querySelector(".profile-helper").style.display = profileValid ? "none" : "block";
+
+        // 모든 조건 충족 시 회원가입 버튼 활성화
+        signupButton.disabled = !(emailValid && passwordValid && confirmPasswordValid && nicknameValid && profileValid);
+    }
+
+    // 📌 프로필 이미지 선택
+    profileUpload.addEventListener("change", function (event) {
+        const file = event.target.files[0];
+        if (file) {
+            profileFile = file;
             const reader = new FileReader();
             reader.onload = function (e) {
                 profileImg.src = e.target.result;
-                profileImg.style.display = "block";
                 profileImg.classList.remove("hidden");
                 profilePlaceholder.style.display = "none";
-                profileHelper.style.display = "none";
             };
-            reader.readAsDataURL(profileUpload.files[0]);
-        } else {
-            profileImg.src = "";
-            profileImg.style.display = "none";
-            profilePlaceholder.style.display = "block";
-            profileHelper.style.display = "block";
+            reader.readAsDataURL(file);
         }
-        validateForm();
+        validateInput();
     });
 
-    profileImg.addEventListener("load", validateForm);
+    // 📌 모든 입력값 실시간 검증
+    emailInput.addEventListener("input", validateInput);
+    passwordInput.addEventListener("input", validateInput);
+    confirmPasswordInput.addEventListener("input", validateInput);
+    nicknameInput.addEventListener("input", validateInput);
 
-    function validateForm() {
-        const isEmailValid = validateEmail(emailInput.value.trim(), emailHelper, usedEmails);
-        const isPasswordValid = validatePassword(passwordInput.value.trim(), passwordHelper);
-        const isPasswordConfirmed = validateConfirmPassword(passwordInput.value.trim(), confirmPasswordInput.value.trim(), confirmPasswordHelper);
-        const isNicknameValid = validateNickname(nicknameInput.value.trim(), nicknameHelper, usedNicknames);
-        const isProfileValid = validateProfile();
+    // 📌 회원가입 요청
+    async function signup() {
+        if (signupButton.disabled) return; // 버튼 비활성화 상태에서는 실행하지 않음
 
-        const isFormValid = isEmailValid && isPasswordValid && isPasswordConfirmed && isNicknameValid && isProfileValid;
-        signupButton.disabled = !isFormValid;
-        signupButton.classList.toggle("active", isFormValid);
-    }
+        const formData = new FormData();
+        formData.append("email", emailInput.value);
+        formData.append("password", passwordInput.value);
+        formData.append("confirmPassword", confirmPasswordInput.value);
+        formData.append("nickname", nicknameInput.value);
+        formData.append("profileImage", profileFile);
 
-    [emailInput, passwordInput, confirmPasswordInput, nicknameInput].forEach(input => {
-        input.addEventListener("focus", function () {
-            this.nextElementSibling.style.display = "block";
-        });
-
-        input.addEventListener("input", function () {
-            validateForm();
-        });
-
-        input.addEventListener("blur", function () {
-            validateForm();
-        });
-    });
-
-    validateProfile();
-    validateForm();
-
-    signupButton.addEventListener("click", async function () {
-        if (signupButton.disabled) return;
-
-        const email = emailInput.value.trim();
-        const password = passwordInput.value.trim();
-        const nickname = nicknameInput.value.trim();
-        const profileFile = profileUpload.files[0];
-
-        let profileImageUrl = "";
-        if (profileFile) {
-            profileImageUrl = URL.createObjectURL(profileFile);
+        // ✅ 📌 요청 데이터 확인 (FormData 내부 데이터 확인)
+        console.log("📌 [회원가입 요청 데이터]");
+        for (const [key, value] of formData.entries()) {
+            console.log(`${key}:`, value);
         }
-
-        const requestData = {
-            email,
-            password,
-            nickname,
-            profileImage: profileImageUrl || ""
-        };
 
         try {
-            const response = await fetch("https://jsonplaceholder.typicode.com/users/signup", {
+            const response = await fetch("http://localhost:8080/auth/signup", {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(requestData)
+                body: formData,
             });
 
-            const result = await response.json();
+            // ✅ 응답 상태 코드 및 헤더 확인
+            console.log("📌 [서버 응답 상태 코드]:", response.status);
+            console.log("📌 [서버 응답 헤더]:", response.headers);
+
+            const contentType = response.headers.get("content-type");
+            let result;
+
+            if (contentType && contentType.includes("application/json")) {
+                result = await response.json(); // JSON 응답
+            } else {
+                result = await response.text(); // JSON이 아닐 경우 원본 출력
+                console.warn("⚠️ [JSON 응답 아님]:", result);
+            }
+
+            console.log("📌 [서버 응답 데이터]:", result);
+
+            // const text = await response.text();  // 원본 응답을 받아서 확인
+            // console.log("Raw Response:", text);  // 콘솔에 원본 응답 출력
+
+            // const result = JSON.parse(text); // JSON으로 변환 시도
 
             if (response.ok) {
-                alert("회원가입 성공! 로그인 페이지로 이동합니다.");
+                alert("회원가입이 완료되었습니다! 로그인 페이지로 이동합니다.");
                 window.location.href = "login.html";
             } else {
-                alert("입력값을 확인해주세요. (잘못된 요청)");
+                alert(result.message || "회원가입에 실패했습니다.");
             }
         } catch (error) {
-            console.error("회원가입 요청 중 오류 발생:", error);
-            alert("네트워크 오류가 발생했습니다. 다시 시도해주세요.");
+            console.error("❌ [회원가입 오류]:", error);
+
+            if (error instanceof TypeError) {
+                console.error("⚠️ [TypeError]: 네트워크 오류 가능성이 높음");
+                alert("서버와의 연결이 원활하지 않습니다. 네트워크 상태를 확인해주세요.");
+            } else if (error instanceof SyntaxError) {
+                console.error("⚠️ [SyntaxError]: JSON 파싱 오류");
+                alert("서버 응답을 처리하는 중 오류가 발생했습니다.");
+            } else {
+                console.error("⚠️ [알 수 없는 오류]:", error);
+                alert("예상치 못한 오류가 발생했습니다. 개발자 도구에서 콘솔을 확인해주세요.");
+            }
         }
-    });
+    }
+
+    // 📌 회원가입 버튼 클릭 이벤트
+    signupButton.addEventListener("click", signup);
 });

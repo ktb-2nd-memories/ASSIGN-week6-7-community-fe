@@ -64,7 +64,7 @@ body {
     width: 100%;
 }
 
-.edit-btn, .delete-btn, .edit-comment, .delete-comment {
+.edit-btn, .delete-btn, .edit-comment, .delete-comment, .edit-reply, .delete-reply, .reply-comment {
     background: transparent;
     border: 1.2px solid #ACA0EB;
     color: black;
@@ -242,4 +242,73 @@ body {
     gap: 8px;
     justify-content: flex-end;
     align-items: center;
+}
+
+/* 대댓글 관련 스타일 */
+.reply-input-container {
+    display: flex;
+    flex-direction: column;
+    background: white;
+    padding: 10px;
+    border-radius: 8px;
+    width: 90%;
+    margin: 10px auto;
+}
+
+.reply-input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+    resize: none;
+    height: 40px;
+}
+
+.reply-submit-wrapper {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 5px;
+}
+
+.reply-submit, .reply-cancel {
+    background: #ACA0EB;
+    color: white;
+    padding: 8px 12px;
+    border: none;
+    cursor: pointer;
+    border-radius: 6px;
+    font-size: 12px;
+    margin-left: 5px;
+}
+
+.reply-submit:hover, .reply-cancel:hover {
+    background: #7F6AEE;
+}
+
+.hidden {
+    display: none;
+}
+
+.reply-list {
+    margin-left: 40px;
+    list-style: none;
+    padding-left: 10px;
+    border-left: 2px solid #ddd;
+}
+
+.reply {
+    background: #f9f9f9;
+    padding: 8px;
+    border-radius: 6px;
+    margin-top: 5px;
+}
+
+.deleted-comment {
+    opacity: 0.6;
+    font-style: italic;
+}
+
+.deleted-comment .comment-author-img {
+    filter: grayscale(100%);
 }

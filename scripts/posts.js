@@ -2,17 +2,14 @@ document.addEventListener("DOMContentLoaded", function () {
     const postList = document.getElementById("post-list");
     const createPostButton = document.querySelector(".write-post-btn");
 
-    // localStorage.clear();
+    let storedPosts = [];
+    let isFetching = false;
+    let cursor = null;
 
-    // 게시글 작성 페이지 이동
     createPostButton.addEventListener("click", function () {
         window.location.href = "make-post.html";
     });
 
-    // localStorage에서 기존 게시글 가져오기 (없으면 빈 배열)
-    let storedPosts = JSON.parse(localStorage.getItem("posts")) || [];
-
-    // 숫자 포맷 변환 (예: 1000 → 1k, 10000 → 10k)
     function formatNumber(num) {
         if (num >= 100000) return (num / 1000).toFixed(0) + "k";
         if (num >= 10000) return (num / 1000).toFixed(0) + "k";
@@ -20,74 +17,73 @@ document.addEventListener("DOMContentLoaded", function () {
         return num;
     }
 
-    // 게시글 렌더링 함수
     function renderPosts(posts, clear = false) {
-        if (clear) {
-            postList.innerHTML = ""; // 기존 목록 초기화
-        }
+        if (clear) postList.innerHTML = "";
         posts.forEach(post => {
             const postCard = document.createElement("article");
             postCard.classList.add("post-card");
             postCard.setAttribute("data-id", post.id);
 
+            // sessionStorage에서 최신 좋아요 개수 가져오기
+            const storedLikeCount = sessionStorage.getItem(`likeCount-${post.id}`);
+            const likeCount = storedLikeCount !== null ? parseInt(storedLikeCount, 10) : post.likeCount;
+
             postCard.innerHTML = `
-                <h2 class="post-title">${post.title.length > 26 ? post.title.substring(0, 26) + "..." : post.title}</h2>
-                <div class="post-meta">
-                    <span class="likes">👍 ${formatNumber(post.likes)}</span>
-                    <span class="comments">💬 ${formatNumber(post.comments)}</span>
-                    <span class="views">👀 ${formatNumber(post.views)}</span>
-                    <span class="date">${post.date}</span>
-                </div>
-                <p class="author">작성자: ${post.author}</p>
-            `;
+            <h2 class="post-title">${post.title.length > 26 ? post.title.substring(0, 26) + "..." : post.title}</h2>
+            <div class="post-meta">
+                <span class="likes">👍 ${formatNumber(likeCount)}</span>
+                <span class="comments">💬 ${formatNumber(post.commentCount)}</span>
+                <span class="views">👀 ${formatNumber(post.viewCount)}</span>
+                <span class="date">${new Date(post.createdAt).toLocaleDateString()}</span>
+            </div>
+            <p class="author">작성자: ${post.memberNickname || "익명"}</p>
+        `;
 
             postList.appendChild(postCard);
         });
     }
 
-    // 초기 게시글 렌더링 (localStorage 데이터 사용)
-    renderPosts(storedPosts, true);
+    const BACKEND_URL = "http://localhost:8080";
 
-    // 게시글 클릭 시 post.html로 이동
-    postList.addEventListener("click", function (event) {
-        const postCard = event.target.closest(".post-card");
-        if (postCard) {
-            const postId = parseInt(postCard.getAttribute("data-id"));
-            localStorage.setItem("selectedPost", JSON.stringify(storedPosts.find(post => post.id === postId)));
-            window.location.href = `post.html?id=${postId}`;
+    async function fetchPosts() {
+        if (isFetching) return;
+        isFetching = true;
+
+        let url = `${BACKEND_URL}/api/posts?size=10`;
+        if (cursor) url += `&cursor=${encodeURIComponent(cursor)}`;
+
+        try {
+            const response = await fetch(url);
+            if (!response.ok) throw new Error("게시글을 불러오는 중 오류가 발생했습니다.");
+
+            const data = await response.json();
+            if (data.status === 200 && Array.isArray(data.data)) {
+                const newPosts = data.data;
+                storedPosts = [...storedPosts, ...newPosts];
+
+                renderPosts(newPosts, cursor === null);
+                if (newPosts.length > 0) cursor = newPosts[newPosts.length - 1].createdAt;
+            }
+        } catch (error) {
+            console.error("Error:", error);
+        } finally {
+            isFetching = false;
         }
-    });
+    }
 
-    // 무한 스크롤 감지
     function handleScroll() {
-        if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 50) {
-            loadMorePosts();
-        }
+        if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 50) fetchPosts();
     }
 
     window.addEventListener("scroll", handleScroll);
 
-    // 더미 게시글 추가 (무한 스크롤)
-    function loadMorePosts() {
-        setTimeout(() => {
-            let lastPostId = storedPosts.length > 0 ? storedPosts[storedPosts.length - 1].id : 0;
-            let newPosts = [];
+    postList.addEventListener("click", function (event) {
+        const postCard = event.target.closest(".post-card");
+        if (postCard) {
+            const postId = parseInt(postCard.getAttribute("data-id"));
+            window.location.href = `post.html?id=${postId}`;
+        }
+    });
 
-            for (let i = 0; i < 5; i++) {
-                newPosts.push({
-                    id: lastPostId + i + 1,
-                    title: "새로운 게시글 " + (lastPostId + i + 1),
-                    likes: Math.floor(Math.random() * 15000),
-                    comments: Math.floor(Math.random() * 20),
-                    views: Math.floor(Math.random() * 5000),
-                    date: new Date().toISOString().split("T")[0] + " " + new Date().toLocaleTimeString(),
-                    author: "작성자 " + (lastPostId + i + 1)
-                });
-            }
-
-            storedPosts = [...storedPosts, ...newPosts]; // 기존 데이터 유지
-            localStorage.setItem("posts", JSON.stringify(storedPosts)); // 전체 데이터 저장
-            renderPosts(newPosts, false); // 새 게시글 추가 렌더링
-        }, 300);
-    }
+    fetchPosts();
 });
