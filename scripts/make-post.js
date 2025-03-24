@@ -13,7 +13,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const accessToken = localStorage.getItem("accessToken");
     if (!accessToken) {
         alert("로그인이 필요합니다. 로그인 페이지로 이동합니다.");
-        window.location.href = "login.html"; // 로그인 페이지로 리디렉트
+        window.location.href = "login.html";
         return;
     }
 

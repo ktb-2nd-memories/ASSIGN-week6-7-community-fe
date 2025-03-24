@@ -18,13 +18,13 @@ document.addEventListener("DOMContentLoaded", async function () {
     toast.style.display = "none";
     withdrawModal.style.display = "none";
 
-    // 🔄 **1. Refresh Token을 사용하여 Access Token 갱신**
+    // 1. Refresh Token을 사용하여 Access Token 갱신
     async function refreshAccessToken() {
         try {
             const refreshToken = localStorage.getItem("refreshToken");
 
             if (!refreshToken) {
-                console.warn("❌ Refresh Token이 없습니다.");
+                console.warn("Refresh Token이 없습니다.");
                 return null;
             }
 
@@ -35,7 +35,7 @@ document.addEventListener("DOMContentLoaded", async function () {
             });
 
             if (!response.ok) {
-                console.warn("❌ Refresh Token이 유효하지 않습니다.");
+                console.warn("Refresh Token이 유효하지 않습니다.");
                 return null;
             }
 
@@ -44,7 +44,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
             // 새로운 Access Token 저장
             localStorage.setItem("accessToken", newAccessToken);
-            console.log("✅ 새로운 Access Token 발급 완료!");
+            console.log("새로운 Access Token 발급 완료!");
 
             return newAccessToken;
         } catch (error) {
@@ -53,7 +53,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         }
     }
 
-    // 📌 **2. 회원 정보 불러오기**
+    // 2. 회원 정보 불러오기
     async function fetchUserProfile() {
         try {
             let accessToken = localStorage.getItem("accessToken");
@@ -71,7 +71,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
             // 401 에러 발생 시 Refresh Token으로 새로운 Access Token 요청
             if (response.status === 401) {
-                console.warn("⚠️ 토큰이 만료되었습니다. 새 토큰을 요청합니다.");
+                console.warn("토큰이 만료되었습니다. 새 토큰을 요청합니다.");
 
                 const newAccessToken = await refreshAccessToken();
 
@@ -106,7 +106,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         }
     }
 
-    // 📌 **3. 닉네임 유효성 검사**
+    // 3. 닉네임 유효성 검사
     function validateNickname() {
         const value = nicknameInput.value.trim();
 
@@ -126,7 +126,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     nicknameInput.addEventListener("input", validateNickname);
 
-    // 📌 **4. 프로필 사진 업로드 및 미리보기**
+    // 4. 프로필 사진 업로드 및 미리보기
     changePicture.addEventListener("click", function () {
         profileUpload.click();
     });
@@ -143,7 +143,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         }
     });
 
-    // 📌 **5. 회원정보 수정 API 요청**
+    // 5. 회원정보 수정 API 요청
     updateBtn.addEventListener("click", async function () {
         if (updateBtn.disabled) return;
 
@@ -176,7 +176,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         }
     });
 
-    // 📌 **6. 회원 탈퇴 기능**
+    // 6. 회원 탈퇴 기능
     withdrawBtn.addEventListener("click", function () {
         withdrawModal.style.display = "block";
     });
@@ -206,6 +206,6 @@ document.addEventListener("DOMContentLoaded", async function () {
         }
     });
 
-    // 📌 **7. 회원 정보 불러오기 실행**
+    // 7. 회원 정보 불러오기 실행
     fetchUserProfile();
 });

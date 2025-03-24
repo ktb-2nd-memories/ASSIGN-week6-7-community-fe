@@ -101,7 +101,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     titleInput.addEventListener("input", validateInputs);
     contentInput.addEventListener("input", validateInputs);
 
-    // 📌 새 이미지 선택 시 저장 및 미리보기 추가
+    // 새 이미지 선택 시 저장 및 미리보기 추가
     imageInput.addEventListener("change", function (event) {
         selectedImages = Array.from(event.target.files); // 선택된 파일 저장
         displayImagePreviews();
@@ -139,7 +139,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         document.querySelector(".input-group").appendChild(imagePreviewContainer);
     }
 
-    // 📌 게시글 수정 요청
+    // 게시글 수정 요청
     editBtn.addEventListener("click", async function () {
         if (editBtn.disabled) return;
 
@@ -188,6 +188,6 @@ document.addEventListener("DOMContentLoaded", async function () {
         }
     });
 
-    // 📌 게시글 데이터 불러오기
+    // 게시글 데이터 불러오기
     fetchPostDetails();
 });

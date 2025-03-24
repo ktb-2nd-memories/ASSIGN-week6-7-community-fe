@@ -3,7 +3,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const passwordInput = document.getElementById("password");
     const loginButton = document.getElementById("login-button");
 
-    // 📌 헬퍼 텍스트 요소 추가
+    // 헬퍼 텍스트 요소 추가
     const emailHelperText = document.createElement("div");
     emailHelperText.classList.add("helper-text");
     emailHelperText.style.display = "none";
@@ -14,13 +14,13 @@ document.addEventListener("DOMContentLoaded", function () {
     passwordHelperText.style.display = "none";
     passwordInput.insertAdjacentElement("afterend", passwordHelperText);
 
-    // 📌 이메일 유효성 검사 정규식
+    // 이메일 유효성 검사 정규식
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-    // 📌 비밀번호 유효성 검사 정규식
+    // 비밀번호 유효성 검사 정규식
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,20}$/;
 
-    // 📌 입력값 검증 함수
+    // 입력값 검증 함수
     function validateInput() {
         const email = emailInput.value.trim();
         const password = passwordInput.value.trim();
@@ -52,16 +52,16 @@ document.addEventListener("DOMContentLoaded", function () {
         loginButton.disabled = !(emailRegex.test(email) && passwordRegex.test(password));
     }
 
-    // 📌 입력 이벤트 추가 (실시간 검증)
+    // 입력 이벤트 추가 (실시간 검증)
     emailInput.addEventListener("input", validateInput);
     passwordInput.addEventListener("input", validateInput);
 
-    // 📌 로그인 버튼 클릭 이벤트
+    // 로그인 버튼 클릭 이벤트
     loginButton.addEventListener("click", async function () {
         await login();
     });
 
-    // 📌 Enter 키로 로그인 실행
+    // Enter 키로 로그인 실행
     document.addEventListener("keydown", async function (event) {
         if (event.key === "Enter") {
             await login();
@@ -95,12 +95,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
             const responseData = await response.json(); // JSON 파싱
 
-            console.log("📌 [서버 응답]:", responseData);
+            console.log("[서버 응답]:", responseData);
 
             if (response.ok) {
                 const { accessToken, refreshToken, grantType } = responseData.data;
 
-                // ✅ 토큰을 로컬 스토리지에 저장
+                // 토큰을 로컬 스토리지에 저장
                 localStorage.setItem("accessToken", accessToken);
                 localStorage.setItem("refreshToken", refreshToken);
                 localStorage.setItem("grantType", grantType);
@@ -111,7 +111,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 alert(responseData.message || "로그인에 실패했습니다.");
             }
         } catch (error) {
-            console.error("❌ [로그인 오류]:", error);
+            console.error("[로그인 오류]:", error);
             alert("서버와의 연결이 원활하지 않습니다. 네트워크 상태를 확인해주세요.");
         }
     }
