@@ -72,6 +72,21 @@ document.addEventListener("DOMContentLoaded", async function () {
         renderComments(postData.comments);
     }
 
+    // 날짜 포맷 함수
+    function formatDate(dateString) {
+        if (!dateString) return "날짜 없음";
+        const d = new Date(dateString);
+        return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()} ${d.getHours()}:${d.getMinutes()}`;
+    }
+
+    // 숫자 포맷 변환 함수
+    function formatCount(number) {
+        if (number >= 100000) return (number / 1000).toFixed(0) + "k";
+        if (number >= 10000) return (number / 1000).toFixed(0) + "k";
+        if (number >= 1000) return (number / 1000).toFixed(1) + "k";
+        return number;
+    }
+
     // 좋아요 상태 변경 API 호출
     async function toggleLike() {
         try {
@@ -483,7 +498,6 @@ document.addEventListener("DOMContentLoaded", async function () {
         }
     }
 
-
     // 대댓글 수정 처리
     async function handleEditReply(event) {
         if (!event.target.classList.contains("edit-reply")) return;
@@ -624,28 +638,20 @@ document.addEventListener("DOMContentLoaded", async function () {
         commentCountStat.innerHTML = `${count + 1}<br>댓글`;
     }
 
-    // 삭제 버튼이 정상적으로 선택되었는지 확인
-    console.log("삭제 버튼: ", deleteButton);
-    console.log("삭제 모달: ", deletePostModal);
-
     if (!deleteButton || !deletePostModal || !confirmDeletePostBtn || !cancelDeletePostBtn) {
         console.error("삭제 관련 요소가 정상적으로 로드되지 않았습니다.");
         return;
     }
 
-    // 삭제 버튼 클릭 시 모달 표시
+    likeButton.addEventListener("click", toggleLike);
     deleteButton.addEventListener("click", function () {
         console.log("🛠️ 삭제 버튼 클릭됨");
         deletePostModal.style.display = "block";
     });
-
-    // 삭제 취소 버튼 클릭 시 모달 닫기
     cancelDeletePostBtn.addEventListener("click", function () {
         console.log("🛠️ 삭제 취소 버튼 클릭됨");
         deletePostModal.style.display = "none";
     });
-
-    // 게시글 삭제 요청
     confirmDeletePostBtn.addEventListener("click", async function () {
         console.log("🛠️ 삭제 확인 버튼 클릭됨");
 
@@ -675,22 +681,6 @@ document.addEventListener("DOMContentLoaded", async function () {
             alert("게시글 삭제 중 오류가 발생했습니다.");
         }
     });
-
-    // 날짜 포맷 함수
-    function formatDate(dateString) {
-        if (!dateString) return "날짜 없음";
-        const d = new Date(dateString);
-        return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()} ${d.getHours()}:${d.getMinutes()}`;
-    }
-
-    // 숫자 포맷 변환 함수
-    function formatCount(number) {
-        if (number >= 100000) return (number / 1000).toFixed(0) + "k";
-        if (number >= 10000) return (number / 1000).toFixed(0) + "k";
-        if (number >= 1000) return (number / 1000).toFixed(1) + "k";
-        return number;
-    }
-
     commentList.addEventListener("click", handleReplyButtonClick);
     commentSubmitBtn.addEventListener("click", handleCommentSubmit);
     replySubmitBtn.addEventListener("click", handleReplySubmit);
@@ -703,9 +693,6 @@ document.addEventListener("DOMContentLoaded", async function () {
         replyInput.value = "";
         targetCommentId = null;
     });
-
-    likeButton.addEventListener("click", toggleLike);
-
     editButton.addEventListener("click", function () {
         window.location.href = `edit-post.html?id=${postId}`;
     });
