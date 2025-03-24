@@ -64,7 +64,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
         postTitle.textContent = postData.title;
         authorName.textContent = postData.memberNickname || "익명";
-        postDate.textContent = new Date(postData.createdAt).toLocaleString();
+        postDate.textContent = formatDate(postData.updatedAt || postData.createdAt);
         postText.textContent = postData.content || "내용이 없습니다.";
         postImage.src = postData.imageUrls.length > 0 ? postData.imageUrls[0] : "../assets/images/default.png";
 
@@ -170,7 +170,7 @@ document.addEventListener("DOMContentLoaded", async function () {
             <img src="${profileImage}" alt="프로필" class="comment-author-img">
             <div class="comment-info">
                 <span class="comment-author">${authorName}</span>
-                <span class="comment-date">${formatDate(comment.createdAt)}</span>
+                <span class="comment-date">${formatDate(comment.updatedAt || comment.createdAt)}</span>
             </div>
             <div class="comment-actions">
                 ${actionsHTML}
@@ -245,7 +245,7 @@ document.addEventListener("DOMContentLoaded", async function () {
             <img src="${reply.memberProfileImageUrl || '../assets/images/default.png'}" alt="프로필" class="comment-author-img">
             <div class="comment-info">
                 <span class="comment-author">${reply.memberNickname}</span>
-                <span class="comment-date">${formatDate(reply.createdAt)}</span>
+                <span class="comment-date">${formatDate(reply.updatedAt || reply.createdAt)}</span>
             </div>
             <div class="reply-actions"> <!-- 대댓글 수정/삭제 버튼 추가 -->
                 <button class="edit-reply">수정</button>
@@ -336,13 +336,40 @@ document.addEventListener("DOMContentLoaded", async function () {
         const originalContent = commentText.textContent;
 
         // 기존 내용을 입력창으로 변경 (textarea 사용)
+        // const editContainer = document.createElement("div");
+        // editContainer.classList.add("edit-container");
+        //
+        // const textarea = document.createElement("textarea");
+        // textarea.classList.add("comment-input");
+        // textarea.value = originalContent;
+        // textarea.rows = 3;
+        //
+        // const saveBtn = document.createElement("button");
+        // saveBtn.textContent = "저장";
+        // saveBtn.classList.add("comment-submit");
+        //
+        // const cancelBtn = document.createElement("button");
+        // cancelBtn.textContent = "취소";
+        // cancelBtn.classList.add("reply-cancel");
+        //
+        // editContainer.appendChild(textarea);
+        // editContainer.appendChild(saveBtn);
+        // editContainer.appendChild(cancelBtn);
+        // commentText.replaceWith(editContainer);
+
         const editContainer = document.createElement("div");
-        editContainer.classList.add("edit-container");
+        editContainer.classList.add("comment-input-container");
 
         const textarea = document.createElement("textarea");
         textarea.classList.add("comment-input");
         textarea.value = originalContent;
         textarea.rows = 3;
+
+        const divider = document.createElement("hr");
+        divider.classList.add("comment-divider");
+
+        const buttonWrapper = document.createElement("div");
+        buttonWrapper.classList.add("comment-submit-wrapper");
 
         const saveBtn = document.createElement("button");
         saveBtn.textContent = "저장";
@@ -350,11 +377,15 @@ document.addEventListener("DOMContentLoaded", async function () {
 
         const cancelBtn = document.createElement("button");
         cancelBtn.textContent = "취소";
-        cancelBtn.classList.add("reply-cancel");
+        cancelBtn.classList.add("comment-submit", "cancel-btn");
+
+        buttonWrapper.appendChild(saveBtn);
+        buttonWrapper.appendChild(cancelBtn);
 
         editContainer.appendChild(textarea);
-        editContainer.appendChild(saveBtn);
-        editContainer.appendChild(cancelBtn);
+        editContainer.appendChild(divider);
+        editContainer.appendChild(buttonWrapper);
+
         commentText.replaceWith(editContainer);
 
         // 저장 버튼 클릭 시 API 호출

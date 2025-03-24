@@ -62,6 +62,7 @@ body {
     gap: 8px;
     justify-content: flex-end;
     width: 100%;
+    margin-bottom: 10px;
 }
 
 .edit-btn, .delete-btn, .edit-comment, .delete-comment, .edit-reply, .delete-reply, .reply-comment {
@@ -163,6 +164,7 @@ body {
     border-radius: 8px;
     font-size: 14px;
     height: 50px;
+    margin-right: 10px;
 }
 
 .comment-submit:hover {
@@ -253,10 +255,12 @@ body {
     border-radius: 8px;
     width: 90%;
     margin: 10px auto;
+
 }
 
 .reply-input {
     width: 100%;
+    box-sizing: border-box;
     padding: 8px;
     border: 1px solid #ddd;
     border-radius: 6px;
