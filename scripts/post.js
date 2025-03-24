@@ -350,28 +350,6 @@ document.addEventListener("DOMContentLoaded", async function () {
         // 기존 내용 저장
         const originalContent = commentText.textContent;
 
-        // 기존 내용을 입력창으로 변경 (textarea 사용)
-        // const editContainer = document.createElement("div");
-        // editContainer.classList.add("edit-container");
-        //
-        // const textarea = document.createElement("textarea");
-        // textarea.classList.add("comment-input");
-        // textarea.value = originalContent;
-        // textarea.rows = 3;
-        //
-        // const saveBtn = document.createElement("button");
-        // saveBtn.textContent = "저장";
-        // saveBtn.classList.add("comment-submit");
-        //
-        // const cancelBtn = document.createElement("button");
-        // cancelBtn.textContent = "취소";
-        // cancelBtn.classList.add("reply-cancel");
-        //
-        // editContainer.appendChild(textarea);
-        // editContainer.appendChild(saveBtn);
-        // editContainer.appendChild(cancelBtn);
-        // commentText.replaceWith(editContainer);
-
         const editContainer = document.createElement("div");
         editContainer.classList.add("comment-input-container");
 
