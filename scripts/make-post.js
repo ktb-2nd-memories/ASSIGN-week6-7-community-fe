@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
-    const BACKEND_URL = "http://localhost:8080"; // 백엔드 주소
+    const BACKEND_URL = "http://localhost:8080";
     const titleInput = document.getElementById("post-title");
     const contentInput = document.getElementById("post-content");
     const imageInput = document.getElementById("post-image");
@@ -7,17 +7,8 @@ document.addEventListener("DOMContentLoaded", function () {
     const helperText = document.getElementById("helper-text");
     const imagePreview = document.getElementById("image-preview");
 
-    let selectedImages = []; // 선택한 이미지 파일 저장
+    let selectedImages = [];
 
-    // 로그인 체크 (토큰이 없으면 로그인 페이지로 이동)
-    const accessToken = localStorage.getItem("accessToken");
-    if (!accessToken) {
-        alert("로그인이 필요합니다. 로그인 페이지로 이동합니다.");
-        window.location.href = "login.html";
-        return;
-    }
-
-    // 입력값 유효성 검사 (제목 + 내용)
     function validateInputs() {
         const title = titleInput.value.trim();
         const content = contentInput.value.trim();
@@ -35,17 +26,42 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
+    async function refreshAccessToken() {
+        try {
+            const refreshToken = localStorage.getItem("refreshToken");
+            const accessToken = localStorage.getItem("accessToken");
+
+            if (!refreshToken || !accessToken) return null;
+
+            const response = await fetch("http://localhost:8080/auth/reissue", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ accessToken, refreshToken }),
+            });
+
+            if (!response.ok) return null;
+
+            const data = await response.json();
+            const newAccessToken = data.data.accessToken;
+
+            localStorage.setItem("accessToken", newAccessToken);
+            return newAccessToken;
+        } catch (error) {
+            console.error("토큰 갱신 중 오류:", error);
+            return null;
+        }
+    }
+
     titleInput.addEventListener("input", validateInputs);
     contentInput.addEventListener("input", validateInputs);
 
-    // 이미지 선택 시 저장 및 미리보기 추가
     imageInput.addEventListener("change", function (event) {
-        selectedImages = Array.from(event.target.files); // 선택된 파일 저장
+        selectedImages = Array.from(event.target.files);
         displayImagePreviews();
     });
 
     function displayImagePreviews() {
-        imagePreview.innerHTML = ""; // 기존 이미지 초기화
+        imagePreview.innerHTML = "";
 
         selectedImages.forEach((file, index) => {
             const reader = new FileReader();
@@ -73,32 +89,33 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // 게시글 제출
     submitBtn.addEventListener("click", async function () {
         if (submitBtn.disabled) return;
 
         const title = titleInput.value.trim();
         const content = contentInput.value.trim();
-        const memberId = 1; // 임시 사용자 ID (로그인 기능 추가 시 변경)
 
         const formData = new FormData();
         formData.append("data", JSON.stringify({ title, content }));
 
-        // 이미지가 있을 경우 추가
-        selectedImages.forEach((file, index) => {
+        selectedImages.forEach((file) => {
             formData.append("images", file);
         });
 
-        // 이미지 순서 추가 (순서 유지)
         if (selectedImages.length > 0) {
             const orderIndexes = Array.from({ length: selectedImages.length }, (_, i) => i + 1);
             formData.append("orderIndexes", JSON.stringify(orderIndexes));
         }
 
-        try {
-            const accessToken = localStorage.getItem("accessToken");
+        let accessToken = localStorage.getItem("accessToken");
+        if (!accessToken) {
+            alert("로그인이 필요합니다.");
+            window.location.href = "login.html";
+            return;
+        }
 
-            const response = await fetch(`${BACKEND_URL}/api/posts`, {
+        try {
+            let response = await fetch(`${BACKEND_URL}/api/posts`, {
                 method: "POST",
                 headers: {
                     "Authorization": `Bearer ${accessToken}`
@@ -106,11 +123,33 @@ document.addEventListener("DOMContentLoaded", function () {
                 body: formData,
             });
 
+            if (response.status === 401) {
+
+                const newAccessToken = await refreshAccessToken();
+
+                if (!newAccessToken) {
+                    alert("로그인이 필요합니다.");
+                    window.location.href = "login.html";
+                    return;
+                }
+
+                accessToken = newAccessToken;
+
+                accessToken = newAccessToken;
+                response = await fetch(`${BACKEND_URL}/api/posts`, {
+                    method: "POST",
+                    headers: {
+                        "Authorization": `Bearer ${accessToken}`
+                    },
+                    body: formData,
+                });
+            }
+
             const result = await response.json();
 
             if (response.ok) {
                 alert("게시글이 성공적으로 작성되었습니다!");
-                window.location.href = "posts.html"; // 게시글 목록으로 이동
+                window.location.href = "posts.html";
             } else {
                 alert(`오류 발생: ${result.message}`);
             }

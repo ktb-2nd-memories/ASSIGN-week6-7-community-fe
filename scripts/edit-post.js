@@ -1,7 +1,7 @@
 document.addEventListener("DOMContentLoaded", async function () {
-    const BACKEND_URL = "http://localhost:8080"; // 백엔드 API 주소
+    const BACKEND_URL = "http://localhost:8080";
     const urlParams = new URLSearchParams(window.location.search);
-    const postId = urlParams.get("id"); // URL에서 postId 가져오기
+    const postId = urlParams.get("id");
 
     const titleInput = document.getElementById("post-title");
     const contentInput = document.getElementById("post-content");
@@ -9,8 +9,8 @@ document.addEventListener("DOMContentLoaded", async function () {
     const editBtn = document.getElementById("edit-btn");
     const helperText = document.getElementById("helper-text");
 
-    let selectedImages = []; // 새로 선택한 이미지 파일 저장
-    let keepImageIds = []; // 유지할 기존 이미지 ID 저장
+    let selectedImages = [];
+    let keepImageIds = [];
 
     if (!postId) {
         alert("잘못된 접근입니다.");
@@ -18,7 +18,31 @@ document.addEventListener("DOMContentLoaded", async function () {
         return;
     }
 
-    // 게시글 데이터 불러오기
+    async function refreshAccessToken() {
+        try {
+            const refreshToken = localStorage.getItem("refreshToken");
+            const accessToken = localStorage.getItem("accessToken");
+
+            if (!refreshToken || !accessToken) return null;
+
+            const response = await fetch("http://localhost:8080/auth/reissue", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ accessToken, refreshToken }),
+            });
+
+            if (!response.ok) return null;
+
+            const data = await response.json();
+            const newAccessToken = data.data.accessToken;
+            localStorage.setItem("accessToken", newAccessToken);
+            return newAccessToken;
+        } catch (error) {
+            console.error("토큰 갱신 오류:", error);
+            return null;
+        }
+    }
+
     async function fetchPostDetails() {
         try {
             const response = await fetch(`${BACKEND_URL}/api/posts/${postId}`);
@@ -31,7 +55,6 @@ document.addEventListener("DOMContentLoaded", async function () {
         }
     }
 
-    // 게시글 데이터 렌더링
     function renderPostDetails(postData) {
         if (!postData) {
             alert("게시글 정보를 가져오는 중 오류가 발생했습니다.");
@@ -42,13 +65,13 @@ document.addEventListener("DOMContentLoaded", async function () {
         contentInput.value = postData.content;
 
         if (postData.imageUrls.length > 0) {
+            keepImageIds = postData.imageUrls.map((_, idx) => idx + 1);
             displayExistingImages(postData.imageUrls);
         }
 
         validateInputs();
     }
 
-    // 기존 이미지 미리보기
     function displayExistingImages(imageUrls) {
         const imageContainer = document.createElement("div");
         imageContainer.classList.add("image-preview-container");
@@ -58,10 +81,10 @@ document.addEventListener("DOMContentLoaded", async function () {
             imgWrapper.classList.add("image-wrapper");
 
             const imgElement = document.createElement("img");
-            imgElement.src = BACKEND_URL + url; // URL 절대경로로 설정
+            imgElement.src = BACKEND_URL + url;
             imgElement.classList.add("preview-image");
             imgElement.onerror = function () {
-                imgElement.src = "../assets/images/default.png"; // 이미지 로드 실패 시 기본 이미지
+                imgElement.src = "../assets/images/default.png";
             };
 
             const removeBtn = document.createElement("button");
@@ -80,7 +103,6 @@ document.addEventListener("DOMContentLoaded", async function () {
         document.querySelector(".input-group").appendChild(imageContainer);
     }
 
-    // 입력값 유효성 검사
     function validateInputs() {
         const title = titleInput.value.trim();
         const content = contentInput.value.trim();
@@ -101,9 +123,8 @@ document.addEventListener("DOMContentLoaded", async function () {
     titleInput.addEventListener("input", validateInputs);
     contentInput.addEventListener("input", validateInputs);
 
-    // 새 이미지 선택 시 저장 및 미리보기 추가
     imageInput.addEventListener("change", function (event) {
-        selectedImages = Array.from(event.target.files); // 선택된 파일 저장
+        selectedImages = Array.from(event.target.files);
         displayImagePreviews();
     });
 
@@ -139,13 +160,12 @@ document.addEventListener("DOMContentLoaded", async function () {
         document.querySelector(".input-group").appendChild(imagePreviewContainer);
     }
 
-    // 게시글 수정 요청
     editBtn.addEventListener("click", async function () {
         if (editBtn.disabled) return;
 
         const title = titleInput.value.trim();
         const content = contentInput.value.trim();
-        const accessToken = localStorage.getItem("accessToken");
+        let accessToken = localStorage.getItem("accessToken");
 
         if (!accessToken) {
             alert("로그인이 필요합니다.");
@@ -155,24 +175,35 @@ document.addEventListener("DOMContentLoaded", async function () {
         const formData = new FormData();
         formData.append("data", JSON.stringify({ title, content, keepImageIds }));
 
-        // 새 이미지 추가
         selectedImages.forEach((file) => {
             formData.append("images", file);
         });
 
-        // orderIndex 정확하게 맞추기
         const updatedOrderIndexes = [...keepImageIds.map((_, idx) => idx + 1), ...selectedImages.map((_, idx) => keepImageIds.length + idx + 1)];
-
         formData.append("orderIndexes", JSON.stringify(updatedOrderIndexes));
 
         try {
-            const response = await fetch(`${BACKEND_URL}/api/posts/${postId}`, {
+            let response = await fetch(`${BACKEND_URL}/api/posts/${postId}`, {
                 method: "PUT",
-                headers: {
-                    "Authorization": `Bearer ${accessToken}`,
-                },
+                headers: { "Authorization": `Bearer ${accessToken}` },
                 body: formData,
             });
+
+            if (response.status === 401) {
+                const newAccessToken = await refreshAccessToken();
+                if (!newAccessToken) {
+                    alert("로그인이 필요합니다.");
+                    window.location.href = "login.html";
+                    return;
+                }
+
+                accessToken = newAccessToken;
+                response = await fetch(`${BACKEND_URL}/api/posts/${postId}`, {
+                    method: "PUT",
+                    headers: { "Authorization": `Bearer ${accessToken}` },
+                    body: formData,
+                });
+            }
 
             const result = await response.json();
 
@@ -183,11 +214,10 @@ document.addEventListener("DOMContentLoaded", async function () {
                 alert(`오류 발생: ${result.message}`);
             }
         } catch (error) {
-            console.error("게시글 수정 중 오류 발생:", error);
+            console.error("게시글 수정 오류:", error);
             alert("게시글 수정 중 오류가 발생했습니다.");
         }
     });
 
-    // 게시글 데이터 불러오기
     fetchPostDetails();
 });

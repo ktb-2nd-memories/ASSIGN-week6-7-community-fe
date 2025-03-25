@@ -7,6 +7,9 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     logoutBtn.addEventListener("click", async function () {
+
+        event.preventDefault(); // 페이지 이동 막기
+
         const accessToken = localStorage.getItem("accessToken");
         const refreshToken = localStorage.getItem("refreshToken");
 
@@ -19,7 +22,10 @@ document.addEventListener("DOMContentLoaded", function () {
         try {
             const response = await fetch("http://localhost:8080/auth/logout", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${accessToken}`
+                },
                 body: JSON.stringify({ accessToken, refreshToken }),
             });
 

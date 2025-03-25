@@ -1,3 +1,5 @@
+import { fetchWithAuthRetry } from "./components/authUtil.js";
+
 document.addEventListener("DOMContentLoaded", function () {
     const BACKEND_URL = "http://localhost:8080/api/member";
     const passwordInput = document.getElementById("password");
@@ -13,13 +15,14 @@ document.addEventListener("DOMContentLoaded", function () {
     async function refreshAccessToken() {
         try {
             const refreshToken = localStorage.getItem("refreshToken");
+            const accessToken = localStorage.getItem("accessToken");
 
-            if (!refreshToken) return null;
+            if (!refreshToken || !accessToken) return null;
 
             const response = await fetch("http://localhost:8080/auth/reissue", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ refreshToken }),
+                body: JSON.stringify({ accessToken, refreshToken }),
             });
 
             if (!response.ok) return null;
@@ -107,7 +110,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 body: JSON.stringify(requestBody),
             });
 
-            // 401 Unauthorized 발생 시 토큰 갱신 후 재시도
             if (response.status === 401) {
                 const newAccessToken = await refreshAccessToken();
 

@@ -52,8 +52,17 @@ document.addEventListener("DOMContentLoaded", function () {
         let url = `${BACKEND_URL}/api/posts?size=10`;
         if (cursor) url += `&cursor=${encodeURIComponent(cursor)}`;
 
+        const accessToken = localStorage.getItem("accessToken");
+
         try {
-            const response = await fetch(url);
+            const response = await fetch(url, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${accessToken}`
+                }
+            });
+
             if (!response.ok) throw new Error("게시글을 불러오는 중 오류가 발생했습니다.");
 
             const data = await response.json();

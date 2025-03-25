@@ -13,54 +13,46 @@ document.addEventListener("DOMContentLoaded", async function () {
     const confirmWithdrawBtn = document.getElementById("confirm-withdraw-btn");
     const emailText = document.getElementById("email");
 
-    let profileImageFile = null; // 업로드한 이미지 저장
+    let profileImageFile = null;
 
     toast.style.display = "none";
     withdrawModal.style.display = "none";
 
-    // 1. Refresh Token을 사용하여 Access Token 갱신
     async function refreshAccessToken() {
         try {
             const refreshToken = localStorage.getItem("refreshToken");
+            const accessToken = localStorage.getItem("accessToken");
 
-            if (!refreshToken) {
-                console.warn("Refresh Token이 없습니다.");
+            if (!refreshToken || !accessToken) {
+                console.warn("토큰 없음");
                 return null;
             }
 
             const response = await fetch("http://localhost:8080/auth/reissue", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ refreshToken }),
+                body: JSON.stringify({ accessToken, refreshToken }),
             });
 
-            if (!response.ok) {
-                console.warn("Refresh Token이 유효하지 않습니다.");
-                return null;
-            }
+            if (!response.ok) return null;
 
             const data = await response.json();
             const newAccessToken = data.data.accessToken;
-
-            // 새로운 Access Token 저장
             localStorage.setItem("accessToken", newAccessToken);
-            console.log("새로운 Access Token 발급 완료!");
-
             return newAccessToken;
         } catch (error) {
-            console.error("토큰 갱신 중 오류 발생:", error);
+            console.error("토큰 갱신 오류:", error);
             return null;
         }
     }
 
-    // 2. 회원 정보 불러오기
     async function fetchUserProfile() {
         try {
             let accessToken = localStorage.getItem("accessToken");
 
             if (!accessToken) {
                 alert("로그인이 필요합니다.");
-                window.location.href = "login.html"; // 로그인 페이지로 이동
+                window.location.href = "login.html";
                 return;
             }
 
@@ -69,12 +61,8 @@ document.addEventListener("DOMContentLoaded", async function () {
                 headers: { "Authorization": `Bearer ${accessToken}` },
             });
 
-            // 401 에러 발생 시 Refresh Token으로 새로운 Access Token 요청
             if (response.status === 401) {
-                console.warn("토큰이 만료되었습니다. 새 토큰을 요청합니다.");
-
                 const newAccessToken = await refreshAccessToken();
-
                 if (!newAccessToken) {
                     alert("로그인이 필요합니다.");
                     window.location.href = "login.html";
@@ -82,8 +70,6 @@ document.addEventListener("DOMContentLoaded", async function () {
                 }
 
                 accessToken = newAccessToken;
-
-                // 다시 회원 정보 요청
                 response = await fetch(`${BACKEND_URL}/me`, {
                     method: "GET",
                     headers: { "Authorization": `Bearer ${accessToken}` },
@@ -106,7 +92,6 @@ document.addEventListener("DOMContentLoaded", async function () {
         }
     }
 
-    // 3. 닉네임 유효성 검사
     function validateNickname() {
         const value = nicknameInput.value.trim();
 
@@ -126,7 +111,6 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     nicknameInput.addEventListener("input", validateNickname);
 
-    // 4. 프로필 사진 업로드 및 미리보기
     changePicture.addEventListener("click", function () {
         profileUpload.click();
     });
@@ -143,11 +127,10 @@ document.addEventListener("DOMContentLoaded", async function () {
         }
     });
 
-    // 5. 회원정보 수정 API 요청
     updateBtn.addEventListener("click", async function () {
         if (updateBtn.disabled) return;
 
-        const accessToken = localStorage.getItem("accessToken");
+        let accessToken = localStorage.getItem("accessToken");
         const formData = new FormData();
         formData.append("nickname", nicknameInput.value.trim());
 
@@ -156,11 +139,27 @@ document.addEventListener("DOMContentLoaded", async function () {
         }
 
         try {
-            const response = await fetch(`${BACKEND_URL}/me`, {
+            let response = await fetch(`${BACKEND_URL}/me`, {
                 method: "PUT",
                 headers: { "Authorization": `Bearer ${accessToken}` },
                 body: formData,
             });
+
+            if (response.status === 401) {
+                const newAccessToken = await refreshAccessToken();
+                if (!newAccessToken) {
+                    alert("로그인이 필요합니다.");
+                    window.location.href = "login.html";
+                    return;
+                }
+
+                accessToken = newAccessToken;
+                response = await fetch(`${BACKEND_URL}/me`, {
+                    method: "PUT",
+                    headers: { "Authorization": `Bearer ${accessToken}` },
+                    body: formData,
+                });
+            }
 
             const responseData = await response.json();
 
@@ -176,7 +175,6 @@ document.addEventListener("DOMContentLoaded", async function () {
         }
     });
 
-    // 6. 회원 탈퇴 기능
     withdrawBtn.addEventListener("click", function () {
         withdrawModal.style.display = "block";
     });
@@ -187,16 +185,34 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     confirmWithdrawBtn.addEventListener("click", async function () {
         try {
-            const accessToken = localStorage.getItem("accessToken");
-            const response = await fetch(`${BACKEND_URL}/me`, {
+            let accessToken = localStorage.getItem("accessToken");
+
+            let response = await fetch(`${BACKEND_URL}/me`, {
                 method: "DELETE",
                 headers: { "Authorization": `Bearer ${accessToken}` },
             });
 
+            if (response.status === 401) {
+                const newAccessToken = await refreshAccessToken();
+                if (!newAccessToken) {
+                    alert("로그인이 필요합니다.");
+                    window.location.href = "login.html";
+                    return;
+                }
+
+                accessToken = newAccessToken;
+
+                response = await fetch(`${BACKEND_URL}/me`, {
+                    method: "DELETE",
+                    headers: { "Authorization": `Bearer ${accessToken}` },
+                });
+            }
+
             if (response.ok) {
                 alert("회원 탈퇴가 완료되었습니다.");
                 localStorage.removeItem("accessToken");
-                window.location.href = "login.html"; // 로그인 페이지로 이동
+                localStorage.removeItem("refreshToken");
+                window.location.href = "login.html";
             } else {
                 alert("회원 탈퇴 실패. 다시 시도해주세요.");
             }
@@ -206,6 +222,5 @@ document.addEventListener("DOMContentLoaded", async function () {
         }
     });
 
-    // 7. 회원 정보 불러오기 실행
     fetchUserProfile();
 });
