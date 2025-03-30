@@ -83,7 +83,12 @@ document.addEventListener("DOMContentLoaded", async function () {
 
             emailText.textContent = userData.email;
             nicknameInput.value = userData.nickname;
-            profileImg.src = userData.profileImageUrl || "../assets/images/profile-icon.png";
+            nicknameInput.setAttribute("data-original", userData.nickname);
+
+            const BACKEND_ORIGIN = "http://localhost:8080";
+            profileImg.src = userData.profileImageUrl
+                ? `${BACKEND_ORIGIN}${userData.profileImageUrl}`
+                : "../assets/images/profile-icon.png";
 
             validateNickname();
         } catch (error) {
@@ -131,10 +136,25 @@ document.addEventListener("DOMContentLoaded", async function () {
         if (updateBtn.disabled) return;
 
         let accessToken = localStorage.getItem("accessToken");
-        const formData = new FormData();
-        formData.append("nickname", nicknameInput.value.trim());
 
-        if (profileImageFile) {
+        const currentNickname = nicknameInput.value.trim();
+        const originalNickname = nicknameInput.getAttribute("data-original");
+        const formData = new FormData();
+
+        const nicknameChanged = currentNickname !== originalNickname;
+        const imageChanged = profileImageFile !== null;
+
+        // 변경 없으면 알림만 띄우고 return
+        if (!nicknameChanged && !imageChanged) {
+            alert("변경된 내용이 없습니다.");
+            return;
+        }
+
+        if (nicknameChanged) {
+            formData.append("nickname", currentNickname);
+        }
+
+        if (imageChanged) {
             formData.append("profileImage", profileImageFile);
         }
 
@@ -164,8 +184,31 @@ document.addEventListener("DOMContentLoaded", async function () {
             const responseData = await response.json();
 
             if (response.ok) {
+                const updatedData = responseData.data;
+
+                if (updatedData.profileImageUrl) {
+                    localStorage.setItem("memberProfileImageUrl", updatedData.profileImageUrl);
+
+                    const headerProfileImg = document.getElementById("profile-icon");
+                    if (headerProfileImg) {
+                        const BACKEND_ORIGIN = "http://localhost:8080";
+                        headerProfileImg.src = `${BACKEND_ORIGIN}${updatedData.profileImageUrl}?v=${Date.now()}`; // 캐시 방지
+                    }
+                }
+                if (updatedData.nickname) {
+                    localStorage.setItem("memberNickname", updatedData.nickname);
+                }
+
                 toast.style.display = "block";
                 setTimeout(() => { toast.style.display = "none"; }, 2000);
+
+                if (nicknameChanged) {
+                    nicknameInput.setAttribute("data-original", currentNickname);
+                }
+
+                if (imageChanged) {
+                    profileImageFile = null;
+                }
             } else {
                 alert(responseData.message || "회원정보 수정 실패.");
             }

@@ -52,6 +52,35 @@ document.addEventListener("DOMContentLoaded", async function () {
         }
     }
 
+    function renderPostImages(images) {
+        const imageContainer = document.querySelector(".post-image-container");
+        imageContainer.innerHTML = "";
+
+        if (!images || images.length === 0) {
+            const defaultImg = document.createElement("img");
+            defaultImg.src = "../assets/images/default.png";
+            defaultImg.alt = "기본 이미지";
+            defaultImg.classList.add("post-image");
+            imageContainer.appendChild(defaultImg);
+            return;
+        }
+
+        // ✅ orderIndex 순 정렬 후 timestamp 붙여서 캐시 방지
+        const timestamp = Date.now();
+        images
+            .sort((a, b) => a.orderIndex - b.orderIndex)
+            .forEach(img => {
+                const image = document.createElement("img");
+                image.src = `${BACKEND_URL}${img.imageUrl}?t=${timestamp}`;
+                image.alt = "게시글 이미지";
+                image.classList.add("post-image");
+                image.onerror = () => {
+                    image.src = "../assets/images/default.png";
+                };
+                imageContainer.appendChild(image);
+            });
+    }
+
     // 게시글 데이터 렌더링
     function renderPostDetails(postData) {
         if (!postData) {
@@ -60,13 +89,21 @@ document.addEventListener("DOMContentLoaded", async function () {
             return;
         }
 
-        console.log("렌더링할 게시글 데이터:", postData);
-
         postTitle.textContent = postData.title;
-        authorName.textContent = postData.memberNickname || "익명";
         postDate.textContent = formatDate(postData.updatedAt || postData.createdAt);
         postText.textContent = postData.content || "내용이 없습니다.";
-        postImage.src = postData.imageUrls.length > 0 ? postData.imageUrls[0] : "../assets/images/default.png";
+
+        renderPostImages(postData.images);
+
+        const authorProfileImage = postData.memberProfileImageUrl
+            ? `${BACKEND_URL}${postData.memberProfileImageUrl}`
+            : "../assets/images/default.png";
+
+        authorName.innerHTML = `
+        <img src="${authorProfileImage}" alt="작성자 프로필" class="post-author-img"
+             onerror="this.onerror=null; this.src='../assets/images/default.png';">
+        ${postData.memberNickname || "익명"}
+    `;
 
         updateStats(postData);
         renderComments(postData.comments);
@@ -172,28 +209,36 @@ document.addEventListener("DOMContentLoaded", async function () {
         let isDeleted = comment.isDeleted;
         let commentContent = isDeleted ? "삭제된 댓글입니다." : comment.content;
         let authorName = isDeleted ? "(알수없음)" : comment.memberNickname;
-        let profileImage = isDeleted ? "../assets/images/default.png" : comment.memberProfileImageUrl || '../assets/images/default.png';
+        let profileImage = isDeleted
+            ? "../assets/images/default.png"
+            : comment.memberProfileImageUrl
+                ? `${BACKEND_URL}${comment.memberProfileImageUrl}`
+                : "../assets/images/default.png";
 
-        let actionsHTML = isDeleted ? "" : `
-        <button class="reply-comment">답글</button>
-        <button class="edit-comment">수정</button>
-        <button class="delete-comment">삭제</button>
-    `;
+        let actionsHTML = "";
+        if (!isDeleted) {
+            actionsHTML = `
+                <button class="reply-comment">답글</button>
+                <button class="edit-comment">수정</button>
+                <button class="delete-comment">삭제</button>
+            `;
+        }
 
         commentItem.innerHTML = `
-        <div class="comment-header">
-            <img src="${profileImage}" alt="프로필" class="comment-author-img">
-            <div class="comment-info">
-                <span class="comment-author">${authorName}</span>
-                <span class="comment-date">${formatDate(comment.updatedAt || comment.createdAt)}</span>
+            <div class="comment-header">
+                <img src="${profileImage}" alt="프로필" class="comment-author-img"
+                    onerror="this.onerror=null; this.src='../assets/images/default.png';">
+                <div class="comment-info">
+                    <span class="comment-author">${authorName}</span>
+                    <span class="comment-date">${formatDate(comment.updatedAt || comment.createdAt)}</span>
+                </div>
+                <div class="comment-actions">
+                    ${actionsHTML}
+                </div>
             </div>
-            <div class="comment-actions">
-                ${actionsHTML}
-            </div>
-        </div>
-        <p class="comment-text">${commentContent}</p>
-        <ul class="reply-list"></ul>
-    `;
+            <p class="comment-text">${commentContent}</p>
+            <ul class="reply-list"></ul>
+        `;
 
         if (isDeleted) {
             commentItem.classList.add("deleted-comment");
@@ -255,20 +300,25 @@ document.addEventListener("DOMContentLoaded", async function () {
         replyItem.classList.add("reply");
         replyItem.setAttribute("data-id", reply.id);
 
+        let replyProfileImage = reply.memberProfileImageUrl
+            ? `${BACKEND_URL}${reply.memberProfileImageUrl}`
+            : "../assets/images/default.png";
+
         replyItem.innerHTML = `
-        <div class="comment-header">
-            <img src="${reply.memberProfileImageUrl || '../assets/images/default.png'}" alt="프로필" class="comment-author-img">
-            <div class="comment-info">
-                <span class="comment-author">${reply.memberNickname}</span>
-                <span class="comment-date">${formatDate(reply.updatedAt || reply.createdAt)}</span>
+            <div class="comment-header">
+                <img src="${replyProfileImage}" alt="프로필" class="comment-author-img"
+                    onerror="this.onerror=null; this.src='../assets/images/default.png';">
+                <div class="comment-info">
+                    <span class="comment-author">${reply.memberNickname}</span>
+                    <span class="comment-date">${formatDate(reply.updatedAt || reply.createdAt)}</span>
+                </div>
+                <div class="reply-actions">
+                    <button class="edit-reply">수정</button>
+                    <button class="delete-reply">삭제</button>
+                </div>
             </div>
-            <div class="reply-actions"> <!-- 대댓글 수정/삭제 버튼 추가 -->
-                <button class="edit-reply">수정</button>
-                <button class="delete-reply">삭제</button>
-            </div>
-        </div>
-        <p class="comment-text">${reply.content}</p>
-    `;
+            <p class="comment-text">${reply.content}</p>
+        `;
 
         parentElement.appendChild(replyItem);
     }

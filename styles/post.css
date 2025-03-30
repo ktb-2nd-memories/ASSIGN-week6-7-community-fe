@@ -38,17 +38,19 @@ body {
     gap: 12px;
 }
 
-.post-meta img.author-img {
-    width: 35px;
-    height: 35px;
-    margin-right: 10px;
-    border-radius: 50%;
-}
-
 .author {
     white-space: nowrap;
     font-size: 14px;
     font-weight: bold;
+}
+
+.post-author-img {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    object-fit: cover;
+    vertical-align: middle;
+    margin-right: 6px;
 }
 
 .date {
@@ -82,9 +84,19 @@ body {
     color: white;
 }
 
+.post-image-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
 .post-image {
     width: 100%;
+    border-radius: 8px;
+    object-fit: cover;
 }
+
 
 .post-stats {
     display: flex;

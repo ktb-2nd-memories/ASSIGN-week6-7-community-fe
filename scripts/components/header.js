@@ -1,4 +1,23 @@
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", async function () {
+    async function fetchMemberInfoIfNeeded() {
+        const accessToken = localStorage.getItem("accessToken");
+        if (!accessToken || localStorage.getItem("memberProfileImageUrl")) return;
+
+        const res = await fetch("http://localhost:8080/api/member/me", {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+            },
+        });
+
+        if (res.ok) {
+            const { data } = await res.json();
+            localStorage.setItem("memberNickname", data.nickname);
+            localStorage.setItem("memberProfileImageUrl", data.profileImageUrl);
+        }
+    }
+
+    await fetchMemberInfoIfNeeded();
+
     const headerContainer = document.getElementById("header-container");
     const currentPage = window.location.pathname.split("/").pop();
 
@@ -34,10 +53,17 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     if (settings.showProfile) {
+        const BACKEND_URL = "http://localhost:8080";
+        const storedProfileUrl = localStorage.getItem("memberProfileImageUrl");
+        const profileImageSrc = storedProfileUrl
+            ? `${BACKEND_URL}${storedProfileUrl}`
+            : "../assets/images/profile-icon.png";
+
         const profileMenu = document.createElement("div");
         profileMenu.classList.add("profile-menu");
         profileMenu.innerHTML = `
-            <img src="../assets/images/profile-icon.png" alt="프로필" class="profile-icon" id="profile-icon">
+            <img src="${profileImageSrc}" alt="프로필" class="profile-icon" id="profile-icon"
+                 onerror="this.src='../assets/images/profile-icon.png'">
             <div class="dropdown-menu" id="dropdown-menu" style="display: none;">
                 <a href="edit-profile.html">회원정보 수정</a>
                 <a href="edit-password.html">비밀번호 수정</a>
@@ -46,11 +72,11 @@ document.addEventListener("DOMContentLoaded", function () {
         `;
         rightSection.appendChild(profileMenu);
 
-        // 프로필 아이콘 클릭 시 드롭다운 토글
+        // 드롭다운 토글
         document.addEventListener("click", function (event) {
             const profileIcon = document.getElementById("profile-icon");
             const dropdownMenu = document.getElementById("dropdown-menu");
-            
+
             if (profileIcon && dropdownMenu) {
                 if (profileIcon.contains(event.target)) {
                     dropdownMenu.style.display = dropdownMenu.style.display === "none" ? "block" : "none";

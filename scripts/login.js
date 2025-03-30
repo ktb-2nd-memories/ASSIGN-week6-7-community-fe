@@ -105,6 +105,20 @@ document.addEventListener("DOMContentLoaded", function () {
                 localStorage.setItem("refreshToken", refreshToken);
                 localStorage.setItem("grantType", grantType);
 
+                const memberInfoRes = await fetch("http://localhost:8080/api/member/me", {
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`,
+                    },
+                });
+
+                if (memberInfoRes.ok) {
+                    const memberInfo = await memberInfoRes.json();
+                    const { nickname, profileImageUrl } = memberInfo.data;
+
+                    localStorage.setItem("memberNickname", nickname);
+                    localStorage.setItem("memberProfileImageUrl", profileImageUrl);
+                }
+
                 alert("로그인 성공! 메인 페이지로 이동합니다.");
                 window.location.href = "posts.html"; // 로그인 성공 후 메인 페이지로 이동
             } else {
