@@ -130,20 +130,25 @@ document.addEventListener("DOMContentLoaded", async function () {
             return;
         }
 
-        const formData = new FormData();
-
         const keepImageIds = images.filter(img => img.id).map(img => img.id);
-        const orderIndexes = images.map((_, i) => i + 1);
+        const orderIndexMap = {};
+
+        images.forEach((img, i) => {
+            if (img.id) {
+                orderIndexMap[img.id] = i + 1;
+            }
+        });
 
         const postData = {
             postData: {
                 title: titleInput.value.trim(),
                 content: contentInput.value.trim(),
                 keepImageIds,
-                orderIndexMap: null
-            },
-            orderIndexes
+                orderIndexMap
+            }
         };
+
+        const formData = new FormData();
 
         formData.append("updateData", new Blob([JSON.stringify(postData)], { type: "application/json" }));
 
