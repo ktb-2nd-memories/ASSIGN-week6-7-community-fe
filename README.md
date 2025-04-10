@@ -46,4 +46,4 @@ COMMUNITY-FE/
 ```
 
 ## 화면 구성
-<img width="1011" alt="스크린샷 2025-02-18 오후 9 50 32" src="https://github.com/user-attachments/assets/b8ac8623-562f-49d0-a52b-3d4cbe22b473" />
+<img width="632" alt="스크린샷 2025-04-10 오전 10 29 50" src="https://github.com/user-attachments/assets/6e568a8a-220e-46a3-9454-3f351784d920" />
